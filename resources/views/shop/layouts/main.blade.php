@@ -53,7 +53,8 @@
         <!-- Main content -->
         <section class="content">
 
-
+            @include("shop.layouts._msg")
+            @include("shop.layouts._error")
                 @yield("content")
 
 

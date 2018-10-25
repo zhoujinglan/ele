@@ -11,8 +11,8 @@ class BaseController extends Controller
     public function __construct()
     {
 //        $this->middleware("auth",[
-//            "except"=>["login","reg","logout"]
-//        ]);
+//            "except"=>["login","add","logout"]
+//       ]);
 
     }
 

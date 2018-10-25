@@ -4,7 +4,7 @@
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="/shop/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                <img src="/{{\Illuminate\Support\Facades\Auth::guard()->user()->img}}" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
                 <p>Alexander Pierce</p>

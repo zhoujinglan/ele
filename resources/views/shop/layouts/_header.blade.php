@@ -137,6 +137,7 @@
                         <li class="footer"><a href="#">View all</a></li>
                     </ul>
                 </li>
+
                 <!-- Tasks: style can be found in dropdown.less -->
                 <li class="dropdown tasks-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -212,15 +213,17 @@
                     </ul>
                 </li>
                 <!-- User Account: style can be found in dropdown.less -->
+
+
                 <li class="dropdown user user-menu">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="/shop/dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
+                        <img src="/{{\Illuminate\Support\Facades\Auth::guard()->user()->img}}" class="user-image" alt="User Image">
                         <span class="hidden-xs"></span>
                     </a>
                     <ul class="dropdown-menu">
                         <!-- User image -->
                         <li class="user-header">
-                            <img src="/shop/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                            <img src="/{{\Illuminate\Support\Facades\Auth::guard()->user()->img}}" class="img-circle" alt="User Image">
 
                             <p>
                                 Alexander Pierce - Web Developer
@@ -232,7 +235,7 @@
                         <!-- Menu Footer-->
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="#" class="btn btn-default btn-flat">商户资料</a>
+                                <a href="{{route("user.edit",\Illuminate\Support\Facades\Auth::guard()->user()->id)}}" class="btn btn-default btn-flat">修改密码</a>
                             </div>
                             <div class="pull-right">
                                 <a href="#" class="btn btn-default btn-flat">退出登录</a>

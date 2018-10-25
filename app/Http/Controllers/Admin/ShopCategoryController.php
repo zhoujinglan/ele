@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Shop;
 use App\Models\ShopCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -59,6 +60,7 @@ class ShopCategoryController extends Controller
                 //删除原来的数据
 
                 Storage::delete($cate['img']);
+
                 $data['img']=$file->store('cate_img','image');
 
             }
@@ -71,4 +73,13 @@ class ShopCategoryController extends Controller
         //显示视图
         return view("admin.cate.edit",compact("cate"));
     }
+    //删除
+    public function del($id){
+        $shop = Shop::find($id);
+        //有分类的不能删除
+
+        $shop->delete();
+
+    }
+
 }

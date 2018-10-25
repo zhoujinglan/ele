@@ -34,7 +34,7 @@
 
                 <td>
                     <a href="{{route("cate.edit",$category->id)}}" class="btn btn-success">编辑</a>
-                    <a href="#" class="btn btn-danger">删除</a>
+                    <a href="{{route("cate.del",$category->id)}}" class="btn btn-danger">删除</a>
 
                 </td>
             </tr>
