@@ -7,31 +7,6 @@
     <form class="form-horizontal" method="post" enctype="multipart/form-data" action="">
         {{csrf_field()}}
 
-        <div class="box-body">
-            <div class="form-group">
-                <label  class="col-sm-2 control-label">商家姓名</label>
-
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" placeholder="商家姓名" name="name" value="{{old("name")}}">
-
-                </div>
-            </div>
-            <div class="form-group">
-                <label  class="col-sm-2 control-label">登录密码</label>
-
-                <div class="col-sm-10">
-                    <input type="password" class="form-control" placeholder="Password" name="password" value="{{old("password")}}">
-                </div>
-            </div>
-            <div class="form-group">
-                <label  class="col-sm-2 control-label">邮箱</label>
-
-                <div class="col-sm-10">
-                    <input type="email" class="form-control" placeholder="email" name="email" value="{{old("email")}}">
-                </div>
-            </div>
-
-        </div>
         <div class="form-group">
             <label for="shop_name" class="col-sm-2 control-label">店铺名称</label>
             <div class="col-sm-10">
@@ -85,7 +60,7 @@
         <div class="form-group">
             <label for="notice" class="col-sm-2 control-label">店铺公告</label>
             <div class="col-sm-10">
-                <textarea rows="4"  class="form-control" name="notice" placeholder="店铺公告"></textarea>
+                <textarea rows="4"  class="form-control" name="notice" placeholder="店铺公告">{{old("notice")}}</textarea>
 
             </div>
         </div>
@@ -93,7 +68,7 @@
         <div class="form-group">
             <label for="discount" class="col-sm-2 control-label">店铺信息</label>
             <div class="col-sm-10">
-                <textarea rows="4"    class="form-control" name="discount" placeholder="店铺信息"></textarea>
+                <textarea rows="4"    class="form-control" name="discount" placeholder="店铺信息">{{old("discount")}}</textarea>
 
             </div>
         </div>

@@ -75,10 +75,22 @@ class ShopCategoryController extends Controller
     }
     //删除
     public function del($id){
-        $shop = Shop::find($id);
-        //有分类的不能删除
-
+        $shop = ShopCategory::find($id);
+        //dd($shop->id);
+        //判断 有分类的不能删除
+        //得到当前分类对应的店铺数
+        $num=Shop::where('shop_category_id',$shop->id)->count();
+       // dd($num);
+        //判断当前分类店铺数
+        if ($num){
+            //回跳
+            return  back()->with("danger","有店铺 的分类不能删除");
+        }
+        //否则删除
         $shop->delete();
+        //跳转
+        return redirect()->route('cate.index')->with('success',"删除成功");
+
 
     }
 

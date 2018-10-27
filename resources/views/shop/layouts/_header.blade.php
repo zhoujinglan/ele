@@ -238,7 +238,7 @@
                                 <a href="{{route("user.edit",\Illuminate\Support\Facades\Auth::guard()->user()->id)}}" class="btn btn-default btn-flat">修改密码</a>
                             </div>
                             <div class="pull-right">
-                                <a href="#" class="btn btn-default btn-flat">退出登录</a>
+                                <a href="{{route("user.logout")}}" class="btn btn-default btn-flat">退出登录</a>
                             </div>
                         </li>
                     </ul>

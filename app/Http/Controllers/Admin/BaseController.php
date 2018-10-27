@@ -10,9 +10,9 @@ class BaseController extends Controller
     //
     public function __construct()
     {
-//        $this->middleware("auth:admin",[
-//            "except"=>["login","reg","logout"]
-//        ]);
+       $this->middleware("auth:admin",[
+           "except"=>["login","reg","logout"]
+       ]);
 
     }
 }

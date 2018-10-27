@@ -42,7 +42,6 @@
                     <li ><a href="{{route("shop.list")}}">店铺申请处理</a></li>
                     <li><a href="{{route("user.list")}}">商户列表</a></li>
 
-                    <li><a href="{{route("user.add")}}">添加商户</a></li>
 
                 </ul>
                 {{--<form class="navbar-form navbar-left">--}}

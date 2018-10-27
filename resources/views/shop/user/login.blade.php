@@ -20,6 +20,7 @@
 </head>
 <body>
 <div class="container">
+
  @include("shop.layouts._error")
    @include("shop.layouts._msg")
 
@@ -47,17 +48,14 @@
                         <input type="password" class="form-control" placeholder="Password" name="password" value="{{old("password")}}">
                     </div>
                 </div>
-                <div class="checkbox">
-                    <label class="col-sm-3 control-label">
-                        <input type="checkbox" name="remember"> 记住密码
-                    </label>
-                </div>
+
 
             </div>
             <!-- /.box-body -->
             <div class="box-footer">
-
+                <a href="{{route("user.reg")}}">没有账号 去注册</a>
                 <button type="submit" class="btn btn-info pull-right">登录</button>
+
             </div>
             <!-- /.box-footer -->
         </form>

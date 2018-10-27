@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends BaseController
 {
     //注册一个用户
-    public function add(Request $request){
+    public function reg(Request $request){
        //判断接收方式
         if($request->isMethod("post")){
             //验证
@@ -47,46 +47,49 @@ class UserController extends BaseController
 
     //登录
     public function login(Request $request){
+
         //判断接收方式
         if($request->isMethod("post")){
-            //验证
-           $data= $this->validate( $request, [
-                'name'     => 'required',
-                "password" => "required",
+            //验证信息
+            $data = $this->validate($request, [
+                'name' => "required",
+                'password' => "required"
+            ]);
+            //验证密码是否正确
+            if(Auth::attempt($data)){
+                //密码正确
+                //判断商铺状态
+                $shop = Auth::user()->shop;//shop是user模型里的一种方法
+                if($shop){//如果店铺有 看状态
+                    //状态就判断-1 0
+                    switch($shop->status){
+                        case -1:
+                            //禁用 退登录
+                            Auth::logout();
+                            return back()->withInput()->with("danger","你的店铺已禁用");
+                            break;
+                        case 0:
+                            //未审核 退登录
+                            Auth::logout();
+                            return back()->withInput()->with("danger","你的店铺还未通过审核");
+                            break;
+                    }
+                }else{
 
-            ] );
-           //dd($data);
 
-            if( Auth::attempt( $data, $request->has( "remember"))){
-                return redirect()->intended(route("index"))->with("success","登录成功");
-
-
-                //判断商铺的状态
-               $id=Auth::user()->id;
-
-
-               $shop= Shop::where("user_id",$id)->first();
-               dd($shop->status);
-                if(($shop->status) ==-1){
-                    //登陆成功
-                    return back()->with("danger","你的店铺已禁用  请重新注册账号");
-                    //return 1;
-
-                }elseif( empty($shop->status)){
-
+                   // 没有店铺 申请
+                    return redirect()->route("shop.apply")->with("success","你还没有店铺 请先申请");
                 }
-                else{
-                    return redirect()->intended(route("index"))->with("success","登录成功");
-
-                   // return redirect()->intended(route("shop.user.add"))->with();
-                }
-
+                //上面的条件都满足 登录首页
+                return redirect()->route("index")->with("success","登录成功");
 
             }else{
-                //登录失败
+                //密码不正确
                 return redirect()->back()->withInput()->with("danger","账号或密码错误");
+
             }
         }
+
             //显示视图
         return view("shop.user.login");
     }
@@ -120,6 +123,12 @@ class UserController extends BaseController
         //显示视图
         return view("shop.user.edit",compact("user"));
 
+    }
+
+    //退出登录
+    public function logout(  ){
+        Auth::logout();
+        return redirect()->route("user.login")->with("success","退出成功");
     }
 
 

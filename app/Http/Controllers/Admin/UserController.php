@@ -37,7 +37,7 @@ class UserController extends Controller
             return redirect()->intended(route("index"))->with("success","申请成功");
 
         }
-        $categories=ShopCategory::whwee("status",1)->get();
+        $categories=ShopCategory::where("status",1)->get();
         return view("admin.user.add",compact("categories"));
 
     }

@@ -16,9 +16,11 @@ class Shop extends Model
         return $this->belongsTo(ShopCategory::class,"shop_category_id");
     }
 
-    //读取分类的名字
+    //读取用户的名字
     public function user(){
         return $this->belongsTo(User::class,"user_id");
     }
+
+
 
 }

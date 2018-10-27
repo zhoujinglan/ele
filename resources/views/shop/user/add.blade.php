@@ -69,7 +69,9 @@
             <div class="box-footer">
 
                 <button type="submit" class="btn btn-info pull-right">注册</button>
+
             </div>
+            <a href="{{route("user.login")}}" >已有账号 去登录</a>
             <!-- /.box-footer -->
         </form>
     </div>

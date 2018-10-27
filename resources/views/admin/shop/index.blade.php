@@ -17,9 +17,17 @@
         @foreach($shops as $shop)
             <tr>
                 <td>{{$shop->id}}</td>
-                <td>{{$shop->user->name}}</td>
+                <td>
+                    @if($shop->user)
+                        {{$shop->user->name}}
+                        @endif
+                </td>
                 <td><img src="/{{$shop->shop_img}}" width="50" alt=""></td>
-                <td>{{$shop->shop_category->name}}</td>
+                <td>
+                    @if($shop->shop_category)
+                    {{$shop->shop_category->name}}
+                        @endif
+                </td>
                 <td>{{$shop->shop_name}}</td>
                 <td>
                     @if($shop->fengniao)
@@ -29,10 +37,12 @@
                     @endif
 
                 <td>
-                    @if($shop->status)
+                    @if($shop->status == 1)
                         已审核
-                        @else
+                        @elseif($shop->status == 0)
                         <a href="{{route("admin.audit",$shop->id)}}">待审核</a>
+                        @else
+                        已禁用
                      @endif
                 </td>
 

@@ -22,12 +22,27 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
     Route::get("index","IndexController@index")->name("index");
 
     //商户注册 登录
-    Route::any("user/add","UserController@add")->name("user.add");
-    Route::any("user/login","UserController@login")->name("user.login");
-    Route::any("user/edit/{id}","UserController@edit")->name("user.edit");
+    Route::any("user/reg","UserController@reg")->name("user.reg");//注册
+    Route::any("user/login","UserController@login")->name("user.login");//登录
+    Route::any("user/edit/{id}","UserController@edit")->name("user.edit");//修改密码
+    Route::get("user/logout","UserController@logout")->name("user.logout");//退出登录
     //  店铺申请
-    Route::any("shop/apply","ShopController@apply")->name("shop.apply");
+    Route::any("shop/apply","ShopController@apply")->name("shop.apply");//商户店铺申请
 
+
+
+    //菜品分类
+    Route::get("cate/index","MenuCategoryController@index")->name("menu_cate.index");
+    Route::any("cate/add","MenuCategoryController@add")->name("menu_cate.add");
+    Route::any("cate/edit/{id}","MenuCategoryController@edit")->name("menu_cate.edit");
+    Route::get("cate/del/{id}","MenuCategoryController@del")->name("menu_cate.del");
+
+
+    //菜品
+    Route::get("menu/index","MenuController@index")->name("menu.index");
+    Route::any("menu/add","MenuController@add")->name("menu.add");
+    Route::any("menu/edit/{id}","MenuController@edit")->name("menu.edit");
+    Route::get("menu/del/{id}","MenuController@del")->name("menu.del");
 
 
 
@@ -53,6 +68,7 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     Route::get("cate/del/{id}","ShopCategoryController@del")->name("cate.del");
 
 
+
     //店户管理 显示  重置密码  删除
     Route::get("user/list","AdminController@indexUser")->name("user.list");
     Route::get("user/edit/{id}","AdminController@editUser")->name("admin.user.edit");
@@ -66,5 +82,6 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     Route::get("admin/logout","AdminController@logout")->name("admin.logout");
 
     //平台添加商户
-    Route::any("user/add","UserController@add")->name("user.add");
+    Route::any("shop/add/{id}","ShopController@add")->name("admin.shop.add");
+
 });
