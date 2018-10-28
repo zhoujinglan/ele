@@ -406,3 +406,363 @@ php代码
                 // dd($a);
             }
 ```
+
+# day4
+### 开发任务
+优化 - 将网站图片上传到阿里云OSS对象存储服务，以减轻服务器压力(https://github.com/jacobcyl/Aliyun-oss-storage) - 使用webuploder图片上传插件，提升用户上传图片体验
+
+平台 - 平台活动管理（活动列表可按条件筛选 未开始/进行中/已结束 的活动） - 活动内容使用ueditor内容编辑器(https://github.com/overtrue/laravel-ueditor)
+
+商户端 - 查看平台活动（活动列表和活动详情） - 活动列表不显示已结束的活动
+### 实现步骤
+######阿里云oss云存储
+1.登录
+2.新建 bucket 取名 域名 标准存储 公共读
+3.点击用户图像---》accesskeys--->继续使用accsskeys--->添加accesskeys--->拿到access_id和access_key
+AccessKeyId:
+LTAIS3IkhTzPg026
+
+AccessKeySecret:
+8HfRZAMVb6KervXAmze0fQ7hTSbA9O
+4.执行命令  安装 ali-oss插件
+```apacheconfig
+composer require jacobcyl/ali-oss-storage -vvv
+```
+5.修改 config/filesystems.php 添加如何代码
+```
+  'oss' => [
+            'driver'        => 'oss',
+            'access_id'     => env("ALIYUNU_ACCESS_ID"),//账号
+            'access_key'    => env("ALIYUNU_ACCESS_KEY"),//密钥
+            'bucket'        => env("ALIYUNU_OSS_BUCKET"),//空间名称
+            'endpoint'      =>env("ALIYUNU_OSS_ENDPOINT"), // OSS 外网节点或自定义外部域名
+        ],
+
+```
+6. 配置文件 .env添加
+```
+FILESYSTEM_DRIVER=oss
+ALIYUN_OSS_URL=http://elezjl.oss-cn-shenzhen.aliyuncs.com/
+ALIYUNU_ACCESS_ID=LTAIS3IkhTzPg026
+ALIYUNU_ACCESS_KEY=8HfRZAMVb6KervXAmze0fQ7hTSbA9O
+ALIYUNU_OSS_BUCKET=elezjl
+ALIYUNU_OSS_ENDPOINT=oss-cn-shenzhen.aliyuncs.com
+```
+7.获得图片
+```php
+<td><img src="{{env("ALIYUN_OSS_URL").$menu->goods_img}}?x-oss-process=image/resize,m_fill,w_80,h_80"></td>
+```
+## webuploader 使用
+1.下载
+https://github.com/fex-team/webuploader/releases/download/0.1.5/webuploader-0.1.5.zip 解压到public 下 webuploader 
+2.在layouts下main文件引入css和js
+```php
+头部
+ <link rel="stylesheet" type="text/css" href="/webuploader/webuploader.css">
+ 尾部  body结束之前
+ <script type="text/javascript" src="/webuploader/webuploader.js"></script>
+ @yield("js")//占一个位置写js代码
+ 
+```
+3.在添加的视图中
+html添加
+```html
+  <div class="form-group">
+                    <label>图像</label>
+
+                    <input type="hidden" name="logo" value="" id="logo">
+                    <!--dom结构部分-->
+                    <div id="uploader-demo">
+                        <!--用来存放item-->
+                        <div id="fileList" class="uploader-list"></div>
+                        <div id="filePicker">选择图片</div>
+                    </div>
+
+
+                </div>
+
+```
+js
+```php
+@section("js")
+    <script>
+        // 图片上传demo
+        jQuery(function () {
+            var $ = jQuery,
+                $list = $('#fileList'),
+                // 优化retina, 在retina下这个值是2
+                ratio = window.devicePixelRatio || 1,
+
+                // 缩略图大小
+                thumbnailWidth = 100 * ratio,
+                thumbnailHeight = 100 * ratio,
+
+                // Web Uploader实例
+                uploader;
+
+            // 初始化Web Uploader
+            uploader = WebUploader.create({
+
+                // 自动上传。
+                auto: true,
+
+                formData: {
+                    // 这里的token是外部生成的长期有效的，如果把token写死，是可以上传的。
+                    _token:'{{csrf_token()}}'
+                },
+
+
+                // swf文件路径
+                swf: '/webuploader/Uploader.swf',
+
+                // 文件接收服务端。
+                server: '{{route("menu_cate.upload")}}',
+
+                // 选择文件的按钮。可选。
+                // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+                pick: '#filePicker',
+
+                // 只允许选择文件，可选。
+                accept: {
+                    title: 'Images',
+                    extensions: 'gif,jpg,jpeg,bmp,png',
+                    mimeTypes: 'image/*'
+                }
+            });
+
+            // 当有文件添加进来的时候
+            uploader.on('fileQueued', function (file) {
+                var $li = $(
+                    '<div id="' + file.id + '" class="file-item thumbnail">' +
+                    '<img>' +
+                    '<div class="info">' + file.name + '</div>' +
+                    '</div>'
+                    ),
+                    $img = $li.find('img');
+
+                $list.html($li);
+
+                // 创建缩略图
+                uploader.makeThumb(file, function (error, src) {
+                    if (error) {
+                        $img.replaceWith('<span>不能预览</span>');
+                        return;
+                    }
+
+                    $img.attr('src', src);
+                }, thumbnailWidth, thumbnailHeight);
+            });
+
+            // 文件上传过程中创建进度条实时显示。
+            uploader.on('uploadProgress', function (file, percentage) {
+                var $li = $('#' + file.id),
+                    $percent = $li.find('.progress span');
+
+                // 避免重复创建
+                if (!$percent.length) {
+                    $percent = $('<p class="progress"><span></span></p>')
+                        .appendTo($li)
+                        .find('span');
+                }
+
+                $percent.css('width', percentage * 100 + '%');
+            });
+
+            // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+            uploader.on('uploadSuccess', function (file,data) {
+                $('#' + file.id).addClass('upload-state-done');
+
+                $("#logo").val(data.url);
+            });
+
+            // 文件上传失败，现实上传出错。
+            uploader.on('uploadError', function (file) {
+                var $li = $('#' + file.id),
+                    $error = $li.find('div.error');
+
+                // 避免重复创建
+                if (!$error.length) {
+                    $error = $('<div class="error"></div>').appendTo($li);
+                }
+
+                $error.text('上传失败');
+            });
+
+            // 完成上传完了，成功或者失败，先删除进度条。
+            uploader.on('uploadComplete', function (file) {
+                $('#' + file.id).find('.progress').remove();
+            });
+        });
+    </script>
+@stop
+```
+4.创建路由 方法
+```php
+添加的方法
+ public function add(Request $request){
+       //判断接收方式
+        $id=Auth::id();
+        if($request->isMethod("post")){
+            $this->validate( $request, [
+                'goods_name'=> 'required |unique:menus',
+                "category_id" => "required",
+                "description" => "required",
+                "goods_price" => "required",
+                "status" => "required",
+
+            ] );
+            $data=$request->post();
+            $data['shop_id']=Auth::user()->shop->id;
+
+           Menu::create($data);
+            //跳转
+            return redirect()->route("menu.index")->with("success","添加成功");
+
+        }
+
+        //显示视图
+        //查询所有分类
+        $cates = MenuCategory::all();
+        return view("shop.menu.add",compact("cates"));
+
+    }
+  
+     //添加图片的方法
+        public function upload(Request $request){
+    
+            //上传处理
+            $file=$request->file("file");//内部的文件  没有在html中显示  固定写法
+            if($file){
+                //有文件进行上传
+                $url = $file->store("menu");
+                //得到真实地址  把http加载进去
+                $url = Storage::url($url);
+                $data['url']=$url;
+                return $data;
+            }
+    
+        }
+```
+图片修改
+```php
+public function edit(Request $request,$id){
+        $menu=Menu::find($id);
+       // dd($menu);
+        //判断接收方式
+        if($request->isMethod("post")){
+            $this->validate( $request, [
+                //'goods_name'=> 'required |unique:menus,goods_name'.$id,
+                'goods_name'=>[
+                  'required',
+                  Rule::unique("menus")->ignore($id)
+                ],
+                "category_id" => "required",
+                "goods_price" => "required",
+                "status" => "required",
+
+            ] );
+
+            $data =$request->post();
+            //删除原来的图片
+           // dd($data);
+            Storage::disk("oss")->delete($menu->goods_img);
+
+            $menu->update($data);
+            //修改成功跳转
+            return redirect()->route("menu.index")->with("success","修改成功");
+        }
+        //回显
+
+        $cates=MenuCategory::all();
+        //显示视图
+        return view("shop.menu.edit",compact("menu","cates"));
+    }
+```
+5.商户端添加活动
+ 活动内容使用ueditor内容编辑器(https://github.com/overtrue/laravel-ueditor)
+ 
+ 步骤
+ 1）composer require "overtrue/laravel-ueditor:~1.0"
+ 2）添加下面一行到 config/app.php 中 providers 部分
+ ```php
+Overtrue\LaravelUEditor\UEditorServiceProvider::class,
+```
+3)发布配置文件与资源
+```php
+php artisan vendor:publish
+然后找到 
+Overtrue\LaravelUEditor\UEditorServiceProvider 相关的数字
+
+```
+4）模板引入编辑器 
+在header部分引入
+```php
+@include('vendor.ueditor.assets')
+```
+在尾部 body结束之前 
+```php
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+@yield("js")//添加这个
+```
+5）编辑器的初始化 使用
+```html
+html地方
+        <div class="form-group">
+            <label for="start_send" class="col-sm-2 control-label">活动详情</label>
+            <div class="col-sm-10">
+            <script id="container" name="content" type="text/plain"></script>
+            </div>
+        </div>
+```
+```php
+@section("js")
+    <script type="text/javascript">
+        var ue = UE.getEditor('container');
+        ue.ready(function() {
+            ue.execCommand('serverparam', '_token', '{{ csrf_token() }}'); // 设置 CSRF token.
+        });
+    </script>
+
+    @endsection
+```
+6.活动显示  活动列表不显示已结束的活动
+```php
+ $activities=Activity::where("end_time",">=",date('Y-m-d H:i:s', time()))->get();
+```
+7.搜索  平台活动管理（活动列表可按条件筛选 未开始/进行中/已结束 的活动）
+```php
+  public function index(Request $request ){
+        //$activities=Activity::where("end_time",">=",date('Y-m-d H:i:s', time()))->get();
+       // dd($activities[0]->start_time);
+        //dd(date('Y-m-d H:i:s', time()));//转成当前时间
+        //搜索
+       $url = $request->query();
+       $time = $request->get("time");
+       $content = $request->get("keyword");
+       //拼接查询条件
+        $query = Activity::orderBy("id");
+        //得到当前时间
+        $nowTime=date('Y-m-d H:i:s', time());
+        //判断时间  1 进行 2 结束 3 未开始
+        if( $time == 1 ){
+            $query->where("start_time","<=",$nowTime)->where("end_time",">",$nowTime);
+        }
+        if($time == 2){
+            $query->where("end_time","<",$nowTime);
+        }
+        if($time == 3){
+            $query->where("start_time",">",$nowTime);
+        }
+        //内容搜索
+        if($content !== null){
+            $query->where("title","like","%{$content}%")->orWhere("content","like","%{$content}%");
+        }
+
+        $activities = $query->paginate(2);
+
+        //$activities =Activity::all();
+        //引入视图
+        return view("admin.activity.index",compact("activities","url"));
+
+    }
+```

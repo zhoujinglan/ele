@@ -69,6 +69,14 @@ return [
             'bucket' => env('AWS_BUCKET'),
         ],
 
+        'oss' => [
+            'driver'        => 'oss',
+            'access_id'     => env("ALIYUNU_ACCESS_ID"),//账号
+            'access_key'    => env("ALIYUNU_ACCESS_KEY"),//密钥
+            'bucket'        => env("ALIYUNU_OSS_BUCKET"),//空间名称
+            'endpoint'      =>env("ALIYUNU_OSS_ENDPOINT"), // OSS 外网节点或自定义外部域名
+        ],
+
     ],
 
 ];

@@ -31,7 +31,7 @@
 
             <li class="treeview">
                 <a href="#">
-                    <i class="fa fa-dashboard"></i> <span>菜品</span>
+                    <i class="fa fa-qrcode"></i> <span>菜品</span>
                     <span class="pull-right-container">
                    <i class="fa fa-angle-left pull-right"></i>
             </span>
@@ -41,7 +41,19 @@
                     <li><a href="{{route("menu.add")}}"><i class="fa fa-circle-o"></i> 菜品添加 </a></li>
                 </ul>
             </li>
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-tasks" ></i> <span>活动</span>
+                    <span class="pull-right-container">
+                   <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a href="{{route("user.activity.index")}}"><i class="fa fa-circle-o"></i> 查看活动</a></li>
 
+                </ul>
+
+            </li>
 
 
             <li class="header">LABELS</li>

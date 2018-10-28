@@ -7,6 +7,8 @@ use App\Models\MenuCategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class MenuController extends Controller
 {
@@ -46,7 +48,7 @@ class MenuController extends Controller
         $menus =$query->where("shop_id",Auth::user()->shop->id)->paginate(3);
 
         // 获得菜品分类
-        $cates=MenuCategory::all();
+        $cates=MenuCategory::where("shop_id",Auth::user()->shop->id)->get();
       //显示视图
         return view("shop.menu.index",compact("menus","cates","url"));
     }
@@ -61,15 +63,11 @@ class MenuController extends Controller
                 "category_id" => "required",
                 "description" => "required",
                 "goods_price" => "required",
-                "img" => "required",
                 "status" => "required",
 
             ] );
             $data=$request->post();
             $data['shop_id']=Auth::user()->shop->id;
-            $data['goods_img']=$request->file("img")->store("menu");
-            //添加
-
 
            Menu::create($data);
             //跳转
@@ -91,20 +89,21 @@ class MenuController extends Controller
         //判断接收方式
         if($request->isMethod("post")){
             $this->validate( $request, [
-                'goods_name'=> 'required ',
+                //'goods_name'=> 'required |unique:menus,goods_name'.$id,
+                'goods_name'=>[
+                  'required',
+                  Rule::unique("menus")->ignore($id)
+                ],
                 "category_id" => "required",
                 "goods_price" => "required",
                 "status" => "required",
 
             ] );
-            $data=$request->post();
-            $file=$request->file("img");
-            //判断图片
-            if($file){
-                //有图片删除原来的图片
-                @unlink($menu->goods_img);
-                $data['goods_img']=$file->store("menu");
-            }
+
+            $data =$request->post();
+            //删除原来的图片
+           // dd($data);
+            Storage::disk("oss")->delete($menu->goods_img);
 
             $menu->update($data);
             //修改成功跳转
@@ -115,5 +114,30 @@ class MenuController extends Controller
         $cates=MenuCategory::all();
         //显示视图
         return view("shop.menu.edit",compact("menu","cates"));
+    }
+    
+    //添加图片的方法
+    public function upload(Request $request){
+
+        //上传处理
+        $file=$request->file("file");//内部的文件  没有在html中显示
+        if($file){
+            //有文件进行上传
+            $url = $file->store("menu");
+            //得到真实地址  把http加载进去
+           // $url = Storage::url($url);
+            $data['url']=$url;
+            return $data;
+        }
+
+    }
+    //删除
+    public function del($id){
+        $menu = Menu::find($id);
+        Storage::disk("oss")->delete($menu->goods_img);
+        $menu->delete();
+        //跳转
+        return redirect()->route("menu.index")->with("success","修改成功");
+
     }
 }

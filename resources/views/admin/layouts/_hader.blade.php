@@ -42,6 +42,15 @@
                     <li ><a href="{{route("shop.list")}}">店铺申请处理</a></li>
                     <li><a href="{{route("user.list")}}">商户列表</a></li>
 
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">活动管理 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{route("activity.index")}}">活动列表</a></li>
+                            <li><a href="{{route("activity.add")}}">添加活动</a></li>
+
+
+                        </ul>
+                    </li>
 
                 </ul>
                 {{--<form class="navbar-form navbar-left">--}}

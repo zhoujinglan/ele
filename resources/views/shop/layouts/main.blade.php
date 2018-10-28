@@ -28,6 +28,10 @@
 
     <!-- Google Font -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <!--引入CSS-->
+    <link rel="stylesheet" type="text/css" href="/webuploader/webuploader.css">
+    <link rel="stylesheet" href="/css/main.css">
+
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -272,5 +276,8 @@
 <script src="/shop/dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="/shop/dist/js/demo.js"></script>
+
+<script type="text/javascript" src="/webuploader/webuploader.js"></script>
+@yield("js")
 </body>
 </html>

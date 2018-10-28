@@ -42,8 +42,13 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
     Route::get("menu/index","MenuController@index")->name("menu.index");
     Route::any("menu/add","MenuController@add")->name("menu.add");
     Route::any("menu/edit/{id}","MenuController@edit")->name("menu.edit");
-    Route::get("menu/del/{id}","MenuController@del")->name("menu.del");
+    Route::any("menu/del/{id}","MenuController@del")->name("menu.del");
 
+    //webuploder添加图片
+    Route::any("menu/upload","MenuController@upload")->name("menu.upload");
+
+    //显示活动
+    Route::get("activity/index","ActivityController@index")->name("user.activity.index");
 
 
 
@@ -83,5 +88,12 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
 
     //平台添加商户
     Route::any("shop/add/{id}","ShopController@add")->name("admin.shop.add");
+
+
+    //添加活动
+    Route::get("activity/index","ActivityController@index")->name("activity.index");
+    Route::any("activity/add","ActivityController@add")->name("activity.add");
+    Route::any("activity/edit/{id}","ActivityController@edit")->name("activity.edit");
+    Route::get("activity/del/{id}","ActivityController@del")->name("activity.del");
 
 });
