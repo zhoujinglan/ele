@@ -55,6 +55,20 @@ class ShopController extends BaseController
         return view("shop.shop.apply",compact("categories"));
     }
 
-    //
+    //添加图片的方法
+    public function upload(Request $request){
+
+        //上传处理
+        $file=$request->file("file");//内部的文件  没有在html中显示
+        if($file){
+            //有文件进行上传
+            $url = $file->store("menu");
+            //得到真实地址  把http加载进去
+            // $url = Storage::url($url);
+            $data['url']=$url;
+            return $data;
+        }
+
+    }
 
 }

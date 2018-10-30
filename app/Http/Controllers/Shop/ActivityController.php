@@ -11,7 +11,7 @@ class ActivityController extends Controller
     //
     public function index( ){
 
-        $activities=Activity::where("end_time",">=",date('Y-m-d H:i:s', time()))->get();
+        $activities=Activity::where("end_time",">=", time())->get();
         // dd($activities[0]->start_time);
         //dd(date('Y-m-d H:i:s', time()));//转成当前时间
         //引入视图

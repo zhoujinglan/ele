@@ -12,6 +12,7 @@ class ActivityController extends Controller
 
     //显示活动
     public function index(Request $request ){
+        //dd(time());
         //$activities=Activity::where("end_time",">=",date('Y-m-d H:i:s', time()))->get();
        // dd($activities[0]->start_time);
         //dd(date('Y-m-d H:i:s', time()));//转成当前时间
@@ -22,7 +23,7 @@ class ActivityController extends Controller
        //拼接查询条件
         $query = Activity::orderBy("id");
         //得到当前时间
-        $nowTime=date('Y-m-d H:i:s', time());
+        $nowTime= time();
         //判断时间  1 进行 2 结束 3 未开始
         if( $time == 1 ){
             $query->where("start_time","<=",$nowTime)->where("end_time",">",$nowTime);
@@ -52,9 +53,21 @@ class ActivityController extends Controller
 
         //判断接收方式
         if($request->isMethod('post')){
+
             //验证
+            $this->validate($request,[
+                'title'=>"required",
+                'content'=>"required",
+                'start_time'=>"required",
+                'end_time'=>"required",
+            ]);
+
             $data = $request->post();
             //dd($data);
+            //时间戳 转换 int类型
+            $data['start_time']=strtotime($data['start_time']);
+            $data['end_time']=strtotime($data['end_time']);
+            //dd( $data['start_time']);
             Activity::create($data);
             //添加成功跳转
             return redirect()->route("activity.index")->with("success","添加成功");
@@ -72,6 +85,8 @@ class ActivityController extends Controller
             //验证
             //修改
             $data = $request->post();
+            $data['start_time']=strtotime($data['start_time']);
+            $data['end_time']=strtotime($data['end_time']);
             $activity->update($data);
             //跳转
             return redirect()->route("activity.index")->with("success","修改成功");

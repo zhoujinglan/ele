@@ -13,6 +13,11 @@ class MenuCategory extends Model
         return $this->belongsTo(Shop::class,"shop_id");
     }
 
+    //通过分类找菜品goods_list=====>goodsList
+    public function goodsList(){
+        return $this->hasMany(Menu::class,"category_id");
+    }
+
 
 
 

@@ -467,19 +467,19 @@ https://github.com/fex-team/webuploader/releases/download/0.1.5/webuploader-0.1.
 3.在添加的视图中
 html添加
 ```html
-  <div class="form-group">
-                    <label>图像</label>
+   <div class="form-group">
+              <label class="col-sm-2 control-label">图片</label>
+  
+              <input type="hidden" name="goods_img" value="" id="goods_img">
+              <!--dom结构部分-->
+              <div id="uploader-demo" class="col-sm-10">
+                  <!--用来存放item-->
+                  <div id="fileList" class="uploader-list"></div>
+                  <div id="filePicker">选择图片</div>
+              </div>
+  
+          </div>
 
-                    <input type="hidden" name="logo" value="" id="logo">
-                    <!--dom结构部分-->
-                    <div id="uploader-demo">
-                        <!--用来存放item-->
-                        <div id="fileList" class="uploader-list"></div>
-                        <div id="filePicker">选择图片</div>
-                    </div>
-
-
-                </div>
 
 ```
 js
@@ -683,6 +683,7 @@ public function edit(Request $request,$id){
  
  步骤
  1）composer require "overtrue/laravel-ueditor:~1.0"
+ 
  2）添加下面一行到 config/app.php 中 providers 部分
  ```php
 Overtrue\LaravelUEditor\UEditorServiceProvider::class,
@@ -765,4 +766,108 @@ html地方
         return view("admin.activity.index",compact("activities","url"));
 
     }
+```
+# 坑 编辑时的唯一问题
+ ```php
+
+```
+# day5 api接口
+开发任务
+接口开发
+
+商家列表接口(支持商家搜索)
+获取指定商家接口
+  
+1.先把前端的首页引入进来 注意里面的配置
+```php
+ <link href=./static/css/app.d40081f78a711e3486e27f787eed3c1f.css rel=stylesheet>
+ <script type=text/javascript src=./api.js></script>
+```
+2.routes 下的api.php 文件创造路由
+```php
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
+    return $request->user();
+}); 
+
+Route::get("shop/index","Api\ShopController@index");
+Route::get("shop/detail","Api\ShopController@detail");
+```
+3.创造控制器 Api/shopcontroller
+```php
+class ShopController extends Controller
+{
+    //获得所有店铺
+    public function index(  ){
+        $shops = Shop::where("status",1)->get();
+        //dd($shops->toArray());
+        //把距离和送达时间追加上去
+        foreach($shops as $k=>$v){
+            $shops[$k]->distance=rand(1000,5000);
+            $shops[$k]->estimate_time=ceil($shops[$k]->distance/rand(100,150));
+        }
+      return $shops;
+    }
+
+    //显示指定商家的店铺
+    public function detail(  ){
+        $id=request()->get('id');
+        //dd($id);
+        //通过id找到特定的一条
+        $shop = Shop::find($id);
+
+        //dd($shop);
+        //$shop->shop_img=env("ALIYUN_OSS_URL").$shop->shop_img;
+           // dd($shop->shop_img);
+        //追加总评分
+        $shop->service_code=4.5;
+        //用户评论
+        $shop->evaluate=[
+          ["user_id"=> 12344,
+                "username"=> "w******k",
+                "user_img"=> "http://www.homework.com/images/slider-pic4.jpeg",
+                "time"=> "2017-2-22",
+                "evaluate_code"=>1,
+                "send_time"=> 30,
+                "evaluate_details"=> "不怎么好吃"],
+          [
+              "user_id"=> 12344,
+                "username"=> "w******k",
+                "user_img"=> "http://www.homework.com/images/slider-pic4.jpeg",
+                "time"=> "2017-2-22",
+                "evaluate_code"=> 4.5,
+                "send_time"=> 30,
+                "evaluate_details"=> "很好吃"
+          ],
+        ];
+        //菜品分类
+        $cates = MenuCategory::where("shop_id",$id)->get();
+       //
+        //遍历出当前分类有哪些商品
+        foreach($cates as $k => $cate){
+
+               // dd($cates[$k]);
+           // dd($data[0]->goods_img);
+            $cates[$k]->goods_list =$cate->goodsList;//goodsList是方法
+            foreach ($cates[$k]->goods_list as $i =>$v){
+                ($cates[$k]->goods_list)[$i]->goods_img=env("ALIYUN_OSS_URL"). ($cates[$k]->goods_list)[$i]->goods_img;
+
+            }
+
+
+        }
+
+        $shop->commodity=$cates;
+        //dd($shop);
+        return $shop;
+
+    }
+}
+```
+4.在public下的api.js写接口路由
+```php
+  // 获得商家列表接口
+  businessList: '/api/shop/index',
+  // 获得指定商家接口
+  business: '/api/shop/detail',
 ```

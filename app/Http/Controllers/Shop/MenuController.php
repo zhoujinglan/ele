@@ -77,7 +77,7 @@ class MenuController extends Controller
 
         //显示视图
         //查询所有分类
-        $cates = MenuCategory::all();
+        $cates = MenuCategory::where("shop_id",Auth::user()->shop->id)->get();
         return view("shop.menu.add",compact("cates"));
 
     }
@@ -111,7 +111,7 @@ class MenuController extends Controller
         }
         //回显
 
-        $cates=MenuCategory::all();
+        $cates=MenuCategory::where("shop_id",Auth::user()->shop->id)->get();
         //显示视图
         return view("shop.menu.edit",compact("menu","cates"));
     }
