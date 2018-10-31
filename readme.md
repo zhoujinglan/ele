@@ -871,3 +871,47 @@ class ShopController extends Controller
   // 获得指定商家接口
   business: '/api/shop/detail',
 ```
+# Day06
+开发任务
+接口开发
+
+用户注册
+用户登录
+忘记密码
+发送短信 要求
+创建会员表
+短信验证码发送成功后,保存到redis,并设置有效期5分钟
+用户注册时,从redis取出验证码进行验证
+### 实现步骤
+1.短信验证
+
+参考 https://packagist.org/packages/mrgoon/aliyun-sms 使用非Laravel框架方法
+
+安装
+```php
+ composer require mrgoon/aliyun-sms dev-master
+```php
+采用非 laravel 框架的使用方法
+```php
+
+     $config = [
+            'access_key' => env("ALIYUNU_ACCESS_ID"),//appid
+            'access_secret' =>env("ALIYUNU_ACCESS_KEY"),//阿里云appkey
+            'sign_name' => env('ALIYUN_SIGN_NAME'),//签名
+        ];
+
+        $sms = new AliSms();
+        $response = $sms->sendSms($tel, 'SMS_149422431', ['code'=> $code], $config);
+```
+3.用redis保存验证码  参考文档
+https://laravel-china.org/docs/laravel/5.5/redis/1331
+
+步骤
+3.1 Composer 安装 predis/predis 扩展包
+```php
+composer require predis/predis
+```
+  //3.把验证码保存起来（redis  文件保存）
+        Redis::set("tel_".$tel,$code);//先保存
+        Redis::expire('tel_'.$tel,60*10);//设置多久时间失效  验证码重发
+ 
