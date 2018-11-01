@@ -11,7 +11,16 @@ class ShopController extends Controller
 {
     //获得所有店铺
     public function index(  ){
-        $shops = Shop::where("status",1)->get();
+
+        $keyword = \request("keyword");
+        if ($keyword!=null) {
+            $shops = Shop::where("status",1)->where("shop_name","like","%{$keyword}%")->get();
+        }else{
+            //得到所有店铺，状态为1的
+            $shops = Shop::where("status",1)->get();
+        }
+
+
         //dd($shops->toArray());
         //把距离和送达时间追加上去
         foreach($shops as $k=>$v){

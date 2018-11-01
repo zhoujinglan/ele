@@ -8,36 +8,57 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redis;
 use Mrgoon\AliSms\AliSms;
+use Illuminate\Support\Facades\Validator;
 
 class MemberController extends Controller
 {
     //注册
     public function reg( Request $request ){
      //验证
-        $this->validate($request,[
-            'username' =>'required ',
-            "password" => "required|unique:members",
+
+        $data= $request->all();
+        $validate = Validator::make($data,[
+            'username'=>"required | unique:members",
+            'sms'=>"required|integer|min:1000|max:999999",
+            "tel"=>[
+                'required',
+                'regex:/^0?(13|14|15|16|17|18|19)[0-9]{9}$/',//电话号码的正则表达
+                'unique:members'
+
+            ],//电话号码用正则验证
         ]);
 
-        $data= $request->post();
-      $code =  Redis::get('tel_'.$data['tel']);
-        if($data['sms'] == $code){
-            $data['password'] = Hash::make($data['password']);
-            if( Member::create($data)){
-                $data= [
-                    'status'=>"true",
-                    'message'=>"注册成功 请登录",
-                ];
-            }else{
-                $data= [
-                    'status'=>"false",
-                    'message'=>"注册失败",
-
-                ];
-            }
-            return $data;
-
+        if($validate->fails()){
+            //验证有误 返回
+            return [
+              'status'=> "false",
+              'message'=>$validate->errors()->first(),//返回一条错误信息
+            ];
         }
+
+        //验证无误 继续操作
+      $code =  Redis::get('tel_'.$data['tel']);
+        if($data['sms'] != $code){
+            //判断验证码是否一致  不一致返回错误
+            return [
+                'status' => "false",
+                //获取错误信息
+                "message" => "验证码错误"
+            ];
+
+            }
+            //一致 密码加密
+        $data['password'] = Hash::make($data['password']);
+         Member::create($data);
+         //数据返回
+        return  [
+                'status'=>"true",
+                'message'=>"注册成功 请登录",
+            ];
+
+
+
+
 
 
 
@@ -62,13 +83,21 @@ class MemberController extends Controller
         $sms = new AliSms();
         $response = $sms->sendSms($tel, 'SMS_149422431', ['code'=> $code], $config);
         //5.返回
-        //if($response->code== 'OK'){}
-        $data=[
-          'status'=>true,
-          'message'=>"获取短信验证码成功".$code,
+        if($response->Code== 'OK'){
+            $data=[
+                'status'=>true,
+                'message'=>"获取短信验证码成功".$code,//TODO
+            ];
+
+        }else{
+            $data = [
+                "status" => "false",
+                "message" => $response->Message
+            ];
+        }
 
 
-        ];
+
         return $data;
 
     }
@@ -166,6 +195,13 @@ class MemberController extends Controller
         return $data;
 
 
+    }
+
+    //显示页面
+    public function detail(Request $request  ){
+
+        $member = Member::find($request->get('user_id'));
+        return $member;
     }
 
 

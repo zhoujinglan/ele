@@ -911,7 +911,73 @@ https://laravel-china.org/docs/laravel/5.5/redis/1331
 ```php
 composer require predis/predis
 ```
-  //3.把验证码保存起来（redis  文件保存）
+  3.2把验证码保存起来（redis  文件保存）
         Redis::set("tel_".$tel,$code);//先保存
         Redis::expire('tel_'.$tel,60*10);//设置多久时间失效  验证码重发
+        
+  # Day07
+   开发任务
+   接口开发
+   
+   用户地址管理相关接口
+   ```php
+   用到手动验证 电话号码用正则验证
+   $validate = Validator::make($data,[
+               'name'=>"required | unique:addresses",
+               'detail_address'=>"required",
+               'provence'=>"required",
+               'city'=>'required',
+               'area'=>'required',
+               'user_id'=>"required",
+   
+               "tel"=>[
+                   'required',
+                   'regex:/^0?(13|14|15|16|17|18|19)[0-9]{9}$/',//电话号码的正则表达
+                   'unique:members'
+   
+               ],//电话号码用正则验证
+           ]);
+
+```
+   购物车相关接口  
+    显示 商品的遍历相对较为复杂
+    ```php
+     public function index(  ){
+    
+            //获得user_id
+            $user_id = request()->get('user_id');
+           // dd($user_id);
+            //显示购物车
+           $carts= Cart::where("user_id",$user_id)->get();
+           //声明一个总价变量
+            $totalCost =0;
+            //声明一个存放购物内容的变量
+            $goodList=[];
+    
+           //循环遍历出来
+            foreach($carts as $k =>$v){
+                //先把菜单读取出来
+                $good = Menu::where('id',$v->goods_id)->first(['id as goods_id','goods_name', 'goods_img', 'goods_price']);
+                //数量
+                $good->goods_img=env("ALIYUN_OSS_URL").$good->goods_img;
+                $good->amount = $v->amount;
+                //总价
+                $totalCost=$totalCost+$good->amount*$good->goods_price;
+                //把购物内容保存起来
+                $goodList[]=$good;
+    
+            }
+            //返回数据
+            return[
+                'goods_list'=>$goodList,
+                "totalCost"=>$totalCost,
+            ];
+    
+    
+        }
+    ```
+ ##### 添加之前注意清空之前的购物列表
+    
+     
+        
  

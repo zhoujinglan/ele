@@ -30,3 +30,15 @@ Route::post("member/login","Api\MemberController@login");
 Route::post("member/reset","Api\MemberController@reset");
 //修改密码
 Route::post("member/change","Api\MemberController@change");
+//登录用户列表显示
+Route::get("member/detail","Api\MemberController@detail");
+
+//收货地址 增删改查
+Route::get("address/index","Api\AddressController@index");
+Route::post("address/add","Api\AddressController@add");
+Route::post("address/edit","Api\AddressController@edit");
+Route::get("address/getOne","Api\AddressController@getOne");//回显一条
+
+//购物车
+Route::post("cart/add","Api\CartController@add");
+Route::get("cart/index","Api\CartController@index");
