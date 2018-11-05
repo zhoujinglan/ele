@@ -10,10 +10,66 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 
 class AdminController extends BaseController
 {
+
+    //添加
+    public function add(Request $request  ){
+        if($request->isMethod('post')){
+            $this->validate($request, [
+                'name'=>"required|unique:admins",
+                'password' => "required"
+            ]);
+            // dd($request->post('per'));
+            //接收参数
+            $data = $request->post();
+            //dd($data);
+            $data['password'] = bcrypt($data['password']);
+            $admin = Admin::create($data);//添加用户
+
+            //给用户添加角色  角色同步
+            $admin->syncRoles($request->post('role'));
+
+            //跳转并提示
+            return redirect()->route('admin.index')->with('success', '创建' . $admin->name . "成功");
+        }
+        //显示视图
+        //得到所有角色
+        $roles =Role::all();
+        return view("admin.admin.add",compact('roles'));
+    }
+
+    //修改
+    public function update(Request $request,$id){
+        //、判断接收方式
+        $admin =Admin::find($id);
+        $rol = $admin->getRoleNames()->toArray();//当前的角色
+
+        if($request->isMethod("post")){
+            $this->validate($request, [
+                'name'=>"required",
+                'email' => "required"
+            ]);
+            // dd($request->post('per'));
+            //接收参数
+            $data = $request->post();
+
+            $admin ->update($data);//添加用户
+
+            //给用户添加角色  角色同步
+            $admin->syncRoles($request->post('role'));
+            //跳转
+            return redirect()->route("admin.index")->with("success","修改成功");
+
+        }
+        //视图显示
+        //查询所有角色
+        $roles =Role::all();
+        return view("admin.admin.update",compact("admin","rol","roles"));
+    }
     //登录后台
     public function login(Request $request){
         if($request->isMethod("post")){
@@ -36,9 +92,13 @@ class AdminController extends BaseController
         //显示视图
         return view("admin.admin.login");
     }
-
+    //显示会员信息
     public function index( ){
-        return view("admin.admin.index");
+        $admins = Admin::all();
+
+        //$roles = $admins->getRoleNames();
+       // dd($roles);
+        return view("admin.admin.index",compact("admins"));
 
     }
     //处理分类
@@ -133,5 +193,18 @@ class AdminController extends BaseController
         return redirect()->route("admin.login")->with("success","退出成功");
 
     }
+    //管理员删除
+    public function del( $id ){
+        //1管理员不能删除
+        if($id == 1){
+            return back()->with("danger","1号管理员不能删除");
+        }
+        $admin=Admin::find($id);
+        $admin->delete();
+        return redirect()->route('admin.index')->with("success", "删除成功");
+    }
+
+    //管理员显示
+
 
 }

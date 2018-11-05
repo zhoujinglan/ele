@@ -65,5 +65,38 @@
             </div>
         </div>
         <!-- ./col -->
+
+        {{--管理员列表--}}
+
+        <div class="rows">
+            <a href="{{route("cate.add")}}" class="btn btn-info">添加</a>
+            <table class="table table-bordered">
+                <tr>
+                    <td>id</td>
+                    <td>管理员姓名</td>
+                    <td>邮箱</td>
+                    <td>职位</td>
+                    <td>操作</td>
+                </tr>
+                @foreach($admins as $admin)
+                    <tr>
+                        <td>{{$admin->id}}</td>
+                        <td>{{$admin->name}}</td>
+                        <td>{{$admin->email}}</td>
+                        <td>{{json_encode($roles = $admin->getRoleNames(),JSON_UNESCAPED_UNICODE)}}</td>
+
+                        <td>
+
+                            @if($admin->id !=1)
+                                <a href="{{route("admin.update",[$admin->id])}}" class="btn btn-success">编辑</a>
+                            <a href="{{route("admin.del",[$admin->id])}}" class="btn btn-danger">删除</a>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </table></div>
     </div>
+
+
+
 @endsection

@@ -13,7 +13,7 @@ class OrderController extends BaseController
     public function index(  ){
 
         //$orders=Order::paginate(3)->groupBy('shop_id');
-        $orders=Order::select(DB::raw("COUNT(*) as nums,SUM(total) as money,shop_id")) 
+        $orders=Order::select(DB::raw("COUNT(*) as nums,SUM(total) as money,shop_id"))
             ->groupBy('shop_id')
         ->paginate(3);
         //dd($orders);

@@ -680,14 +680,14 @@ public function edit(Request $request,$id){
 ```
 5.商户端添加活动
  活动内容使用ueditor内容编辑器(https://github.com/overtrue/laravel-ueditor)
- 
+
  步骤
  1）composer require "overtrue/laravel-ueditor:~1.0"
- 
+
  2）添加下面一行到 config/app.php 中 providers 部分
  ```php
 Overtrue\LaravelUEditor\UEditorServiceProvider::class,
-```
+ ```
 3)发布配置文件与资源
 ```php
 php artisan vendor:publish
@@ -770,14 +770,14 @@ html地方
 # 坑 编辑时的唯一问题
  ```php
 
-```
+ ```
 # day5 api接口
 开发任务
 接口开发
 
 商家列表接口(支持商家搜索)
 获取指定商家接口
-  
+
 1.先把前端的首页引入进来 注意里面的配置
 ```php
  <link href=./static/css/app.d40081f78a711e3486e27f787eed3c1f.css rel=stylesheet>
@@ -890,9 +890,9 @@ class ShopController extends Controller
 安装
 ```php
  composer require mrgoon/aliyun-sms dev-master
-```php
+​```php
 采用非 laravel 框架的使用方法
-```php
+​```php
 
      $config = [
             'access_key' => env("ALIYUNU_ACCESS_ID"),//appid
@@ -918,7 +918,7 @@ composer require predis/predis
   # Day07
    开发任务
    接口开发
-   
+
    用户地址管理相关接口
    ```php
    用到手动验证 电话号码用正则验证
@@ -938,7 +938,7 @@ composer require predis/predis
                ],//电话号码用正则验证
            ]);
 
-```
+   ```
    购物车相关接口  
     显示 商品的遍历相对较为复杂
     ```php
@@ -972,7 +972,8 @@ composer require predis/predis
                 'goods_list'=>$goodList,
                 "totalCost"=>$totalCost,
             ];
-    
+
+
     
         }
     ```
@@ -980,26 +981,26 @@ composer require predis/predis
  # Day08
  开发任务
  接口开发
- 
+
  订单接口(使用事务保证订单和订单商品表同时写入成功)
 
- 
+
 # Day09
  开发任务
  商户端
- 
+
  订单管理[订单列表,查看订单,取消订单,发货]
- 
+
  订单量统计[按日统计,按月统计,累计]（每日、每月、总计）
- 
+
  菜品销量统计[按日统计,按月统计,累计]（每日、每月、总计）
- 
+
  平台
- 
+
  订单量统计[按商家分别统计和整体统计]（每日、每月、总计）
- 
+
  菜品销量统计[按商家分别统计和整体统计]（每日、每月、总计）
- 
+
  会员管理[会员列表,查询会员,查看会员信息,禁用会员账号]
   ### 实现步骤
   商户端 按日统计
@@ -1007,7 +1008,343 @@ composer require predis/predis
   #1.找到当前店铺的所有订单id
   $shop_id=Oreder::
 
+  ```
+# Day10
+#### 开发任务
+平台
+
+权限管理
+角色管理[添加角色时,给角色关联权限]
+管理员管理[添加和修改管理员时,修改管理员的角色]​        
+
+#### 实现步骤
+
+1.composer安装
+
 ```
-     
-        
- 
+composer require spatie/laravel-permission -vvv
+```
+
+2.生成数据迁移
+
+```
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="migrations"
+
+# 可以在迁移的权限表中添加intro字段
+```
+
+3.执行数据迁移
+
+```
+php artisan migrate
+```
+
+4.生成配置文件
+
+```
+ php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" --tag="config"
+```
+
+5.Admin模型当中添加门卫
+
+```
+class Admin extends Authenticatable
+{
+
+    use HasRoles;
+    protected $guard_name = 'admin'; // 使用任何你想要的守卫
+    protected $fillable=["username","password"];
+
+}
+```
+
+6.在PermissionController控制器添加权限
+
+```
+ //添加权限
+    public function add(Request $request){
+        //判断接收方法
+        if($request->isMethod("post")){
+            //验证
+            $this->validate($request,[
+                'name'=>"required",
+                'intro'=>"required",
+
+            ]);
+            $data = $request->post();
+            $data['guard_name']="admin";
+            //dd($data);
+            Permission::create($data);
+
+        }
+        //引入视图
+        return view("admin.per.add");
+    }
+```
+
+7.在RoleController控制器中添加角色         
+
+```
+//添加角色
+    public function add(Request $request ){
+        //判断接收方式
+        if($request->isMethod('post')){
+            $this->validate($request,[
+                'name'=>"required"
+            ]);
+            //接收数据  并处理
+            $pers =$request->post('pers');//获得权限
+            //dd($pers);
+            //添加角色
+            $role = Role::create([
+                'name'=>$request->post('name'),
+                'guard_name'=>'admin',
+                                 ]);
+            //同步角色
+            if($pers){//判断是否添加了权限
+                $role->syncPermissions($pers);
+            }
+
+        }
+        //显示视图
+        //得到所有权限
+        $pers =Permission::all();
+        return view("admin.role.add",compact('pers'));
+    }
+```
+
+8.给用户指定角色
+
+```
+ public function add(Request $request ){
+        //判断接收方式
+        if($request->isMethod('post')){
+            $this->validate($request,[
+                'name'=>"required"
+            ]);
+            //接收数据  并处理
+            $pers =$request->post('pers');//获得权限
+            //dd($pers);
+            //添加角色
+            $role = Role::create([
+                'name'=>$request->post('name'),
+                'guard_name'=>'admin',
+                                 ]);
+            //同步角色
+            if($pers){
+                $role->syncPermissions($pers);
+            }
+
+        }
+        //显示视图
+        //得到所有权限
+        $pers =Permission::all();
+        return view("admin.role.add",compact('pers'));
+    }
+```
+
+9.判断权限 在E:\web\ele\app\Http\Controllers\Admin\BaseController.php 添加如下
+
+```
+namespace App\Http\Controllers\Admin;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Mockery\Matcher\Closure;
+
+public function __construct()
+    {
+        //添加中间件
+        $this->middleware("auth:admin")->except(['login']);
+
+        //有没有权限
+        $this->middleware(function($request,\Closure $next){
+            $route =Route::currentRouteName();
+
+            //设置白名单
+            $allow=[
+                'admin.login',
+                'admin.logout'
+            ];
+            //要保证在白名单 并且有权限 id==1
+            if(!in_array($route,$allow) && !Auth::guard("admin")->user()->can($route) && Auth::guard("admin")->id()!=1){
+                exit(view("admin.fuck"));
+            }
+            return $next($request);
+        });
+
+    }
+```
+
+10.创建admin.fuck视图
+
+```
+@extends("admin.layouts.main")
+
+@section("content")
+    没有权限
+@endsection
+```
+
+11.获得角色的权限
+
+```
+<td>{{ json_encode($role->permissions()->pluck('intro'),JSON_UNESCAPED_UNICODE)}}
+                </td>
+  或者
+ {{str_replace(['[',']','"'],'', json_encode($role->permissions()->pluck('intro'),JSON_UNESCAPED_UNICODE))}}
+               
+//取出当前角色所拥有的所有权限
+   $role->permissions();
+```
+
+12.获得当前用户的权限
+
+```
+<td>{{json_encode($roles = $admin->getRoleNames(),JSON_UNESCAPED_UNICODE)}}</td>
+
+ //取出当前用户所拥有的角色
+   $roles = $admin->getRoleNames(); // 返回一个集合
+```
+
+13.其他用法
+
+```
+ //判断当前角色有没有当前权限
+   $role->hasPermissionTo('edit articles');
+   //判断当前用户有没有权限
+   $admin->hasRole('角色名')
+```
+
+14.权限回显
+
+role控制器中   
+
+```
+ public function edit( Request $request,$id ){
+        //
+        $role =Role::find($id);
+        //dd($role);
+        $rol =  $role->permissions()->pluck('id')->toArray();//这是很重要的 读取有的权限
+        //dd($rol);
+        //判断接收
+
+
+            if($request->isMethod('post')){
+                $this->validate( $request, [
+                    'name' => "required"
+                ] );
+                //接收数据  并处理
+                $pers = $request->post( 'pers' );//获得权限
+                //dd($pers);
+                //添加角色
+                $role->update( [
+                                   'name'       => $request->post( 'name' ),
+                                   'guard_name' => 'admin',
+                               ] );
+                //同步角色
+                if( $pers ){
+                    $role->syncPermissions( $pers );
+                }
+
+            return redirect()->route("role.index")->with("success","修改成功");
+        }
+
+        //获得
+        $pers =Permission::all();
+        return view("admin.role.edit",compact("pers","role","rol"));
+
+    }
+```
+
+html
+
+```
+  <form action="" method="post" enctype="multipart/form-data">
+        {{ csrf_field() }}
+        <div class="form-group">
+            <label>角色名称</label>
+            <input type="text" class="form-control"  placeholder="名称" name="name" value="{{$role->name}}">
+        </div>
+
+
+        <div class="form-group">
+            <label>权限</label>
+            @foreach($pers as $per)
+                <input type="checkbox" name="pers[]" value="{{$per->id}}" {{in_array($per->id,$rol)?'checked':""}}>
+                {{$per->intro}}
+            @endforeach
+
+        </div>
+
+
+        <button type="submit" class="btn btn-default">修改</button>
+    </form>
+```
+
+15.角色回显
+
+php代码
+
+```
+ public function update(Request $request,$id){
+        //、判断接收方式
+        $admin =Admin::find($id);
+        $rol = $admin->getRoleNames()->toArray();//当前的角色
+
+        if($request->isMethod("post")){
+            $this->validate($request, [
+                'name'=>"required",
+                'email' => "required"
+            ]);
+            // dd($request->post('per'));
+            //接收参数
+            $data = $request->post();
+
+            $admin ->update($data);//添加用户
+
+            //给用户添加角色  角色同步
+            $admin->syncRoles($request->post('role'));
+            //跳转
+            return redirect()->route("admin.index")->with("success","修改成功");
+
+        }
+        //视图显示
+        //查询所有角色
+        $roles =Role::all();
+        return view("admin.admin.update",compact("admin","rol","roles"));
+    }
+```
+
+html
+
+````
+<form action="" method="post" enctype="multipart/form-data">
+        {{ csrf_field() }}
+        <div class="form-group">
+            <label>名称</label>
+            <input type="text" class="form-control"  placeholder="名称" name="name" value="{{$admin->name}}">
+        </div>
+
+        <div class="form-group">
+            <label>邮箱</label>
+            <input type="email" class="form-control"  placeholder="邮箱" name="email" value="{{$admin->email}}">
+        </div>
+
+
+        <div class="form-group">
+            <label>权限</label>
+            @foreach($roles as $role)
+                <input type="checkbox" name="role[]" value="{{$role->id}}" {{in_array($role->name,$rol)?'checked':""}}>
+                {{$role->name}}
+            @endforeach
+
+        </div>
+
+
+        <button type="submit" class="btn btn-default">修改</button>
+    </form>
+````
+

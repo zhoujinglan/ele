@@ -85,6 +85,7 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
 Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     //region 商户分类
     Route::any("admin/login","AdminController@login")->name("admin.login");
+    Route::any("admin/add","AdminController@add")->name("admin.add");
     Route::get("admin/index","AdminController@index")->name("admin.index");
     Route::get("shop/list","AdminController@list")->name("shop.list");
     //endregion
@@ -113,6 +114,8 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
 
     //region修改管理员信息
     Route::any("admin/edit/{id}","AdminController@edit")->name("admin.edit");
+    Route::any("admin/update/{id}","AdminController@update")->name("admin.update");
+    Route::get("admin/del/{id}","AdminController@del")->name("admin.del");
     //退出
     Route::get("admin/logout","AdminController@logout")->name("admin.logout");
     //endregion
@@ -149,6 +152,19 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     //endregion
 
     //region  会员
-    Route::get("admin/member/index","MemberController@day")->name("admin.member");
+    Route::get("admin/member/index","MemberController@day")->name("admin.member.index");
+    //endregion
+    //region 权限添加
+    Route::get("per/index","PermissionController@index")->name("per.index");
+    Route::any("per/add","PermissionController@add")->name("per.add");
+    Route::any("per/edit/{id}","PermissionController@edit")->name("per.edit");
+    Route::get("per/del/{id}","PermissionController@del")->name("per.del");
+    //endregion
+
+    //region 角色添加
+    Route::get("role/index","RoleController@index")->name("role.index");
+    Route::any("role/add","RoleController@add")->name("role.add");
+    Route::any("role/edit/{id}","RoleController@edit")->name("role.edit");
+    Route::get("role/del/{id}","RoleController@del")->name("role.del");
     //endregion
 });

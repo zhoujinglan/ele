@@ -76,6 +76,33 @@
                         </ul>
                     </li>
 
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">权限管理 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+
+                            <li><a href="{{route('per.index')}}">权限列表</a></li>
+                            <li><a href="{{route('per.add')}}">权限添加</a></li>
+
+
+
+                        </ul>
+                    </li>
+
+
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">角色管理 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+
+                            <li><a href="{{route('role.index')}}">角色列表</a></li>
+                            <li><a href="{{route('role.add')}}">角色添加</a></li>
+
+
+
+                        </ul>
+                    </li>
+
+
                 </ul>
                 {{--<form class="navbar-form navbar-left">--}}
                 {{--<div class="form-group">--}}
