@@ -7,7 +7,7 @@ use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class ShopController extends Controller
+class ShopController extends BaseController
 {
     //获得所有店铺
     public function index(  ){
@@ -69,11 +69,12 @@ class ShopController extends Controller
 
                // dd($cates[$k]);
            // dd($data[0]->goods_img);
+            //图片路径
             $cates[$k]->goods_list =$cate->goodsList;//goodsList是方法
-            foreach ($cates[$k]->goods_list as $i =>$v){
+            /*foreach ($cates[$k]->goods_list as $i =>$v){
                 ($cates[$k]->goods_list)[$i]->goods_img=env("ALIYUN_OSS_URL"). ($cates[$k]->goods_list)[$i]->goods_img;
 
-            }
+            }*/
 
 
         }

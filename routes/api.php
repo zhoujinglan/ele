@@ -42,3 +42,11 @@ Route::get("address/getOne","Api\AddressController@getOne");//回显一条
 //购物车
 Route::post("cart/add","Api\CartController@add");
 Route::get("cart/index","Api\CartController@index");
+
+//订单生成
+Route::post("order/add","Api\OrderController@add");
+Route::get("order/detail","Api\OrderController@detail");
+Route::any("order/index","Api\OrderController@index");
+
+//支付
+Route::post("order/pay","Api\OrderController@pay");

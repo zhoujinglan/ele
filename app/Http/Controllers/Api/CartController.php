@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Cart;
 use App\Models\Menu;
+use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class CartController extends Controller
+class CartController extends BaseController
 {
     //购物车显示
     public function index(  ){
@@ -26,8 +27,12 @@ class CartController extends Controller
         foreach($carts as $k =>$v){
             //先把菜单读取出来
             $good = Menu::where('id',$v->goods_id)->first(['id as goods_id','goods_name', 'goods_img', 'goods_price']);
+
+            //配送费
+          //  $shop= Shop::where('id',$good->goods_id)->first();
+           // dd($shop);
             //数量
-            $good->goods_img=env("ALIYUN_OSS_URL").$good->goods_img;
+            //$good->goods_img=env("ALIYUN_OSS_URL").$good->goods_img;
             $good->amount = $v->amount;
             //总价
             $totalCost=$totalCost+$good->amount*$good->goods_price;
@@ -46,7 +51,7 @@ class CartController extends Controller
     //添加订单
     public function add(Request $request  ){
 
-        $user_id     = $request->post( "user_id" );
+        $user_id = $request->post( "user_id" );
         $goodLists   = $request->post( "goodsList" );
         $goodsCounts = $request->post( "goodsCount" );
         //清空当前用户user_id的购物车 避免把之前的已买的商品再次购买

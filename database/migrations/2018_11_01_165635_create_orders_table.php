@@ -15,6 +15,17 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('user_id')->comment('用户id');
+            $table->integer('shop_id')->comment('商家id');
+            $table->string('order_code')->comment("订单号");
+            $table->string('name')->comment("收货人姓名");
+            $table->string('tel')->unique()->comment("收货人电话");
+            $table->string("provence")->comment("省份");
+            $table->string("city")->comment("市");
+            $table->string("area")->comment("区");
+            $table->string("address")->comment("详细地址");
+            $table->decimal("total")->comment('价格');
+            $table->integer('status')->comment("状态(-1:已取消,0:待支付,1:待发货,2:待确认,3:完成)");
             $table->timestamps();
         });
     }

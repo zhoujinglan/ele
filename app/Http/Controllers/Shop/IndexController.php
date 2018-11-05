@@ -16,5 +16,10 @@ class IndexController extends BaseController
 
         return view("shop.index.index");
     }
+    
+    //获得每月总收入
+    public function toralAll(  ){
+        
+    }
 
 }

@@ -18,37 +18,64 @@ Route::get('/', function () {
 //商家
 Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
 
-    //商户首页
+    //region商户模块
     Route::get("index","IndexController@index")->name("index");
 
-    //商户注册 登录
-    Route::any("user/reg","UserController@reg")->name("user.reg");//注册
-    Route::any("user/login","UserController@login")->name("user.login");//登录
-    Route::any("user/edit/{id}","UserController@edit")->name("user.edit");//修改密码
-    Route::get("user/logout","UserController@logout")->name("user.logout");//退出登录
-    //  店铺申请
-    Route::any("shop/apply","ShopController@apply")->name("shop.apply");//商户店铺申请
 
+    #商户注册
+    Route::any("user/reg","UserController@reg")->name("user.reg");
+    #商户登录
+    Route::any("user/login","UserController@login")->name("user.login");
+    #密码修改
+    Route::any("user/edit/{id}","UserController@edit")->name("user.edit");
+    #商户注销
+    Route::get("user/logout","UserController@logout")->name("user.logout");
+    # 商户店铺申请
+    Route::any("shop/apply","ShopController@apply")->name("shop.apply");
 
+    //endregion
 
-    //菜品分类
+    //region菜品分类
     Route::get("cate/index","MenuCategoryController@index")->name("menu_cate.index");
     Route::any("cate/add","MenuCategoryController@add")->name("menu_cate.add");
     Route::any("cate/edit/{id}","MenuCategoryController@edit")->name("menu_cate.edit");
     Route::get("cate/del/{id}","MenuCategoryController@del")->name("menu_cate.del");
+    //endregion
 
-
-    //菜品
+    //region菜品
     Route::get("menu/index","MenuController@index")->name("menu.index");
     Route::any("menu/add","MenuController@add")->name("menu.add");
     Route::any("menu/edit/{id}","MenuController@edit")->name("menu.edit");
     Route::any("menu/del/{id}","MenuController@del")->name("menu.del");
+    //endregion
 
-    //webuploder添加图片
+    //region webuploder添加图片
     Route::any("menu/upload","MenuController@upload")->name("menu.upload");
+    //endregion
 
-    //显示活动
+    //region显示活动
     Route::get("activity/index","ActivityController@index")->name("user.activity.index");
+    //endregion
+
+    //region 订单管理
+    Route::get("order/index","OrderController@index")->name("shop.order.index");
+    Route::get("order/del/{id}","OrderController@del")->name("shop.order.del");
+    //endregion
+
+    //region 统计
+    #销量每日统计
+    Route::get("order/day","OrderController@day")->name("shop.order.day");
+    #销量每月
+    Route::get("order/month","OrderController@month")->name("shop.order.month");
+    #商品
+    Route::get("order/menuday","OrderController@menuDay")->name("shop.order.menu_day");
+    Route::get("order/menumonth","OrderController@menuMonth")->name("shop.order.menu_month");
+    Route::get("order/menu","OrderController@menu")->name("shop.order.menu");
+    #处理订单状态
+    Route::get('order/status/{id}/{status}', "OrderController@status")->name('order.status');
+    #查看
+    Route::get('order/look/{id}', "OrderController@look")->name('order.look');
+    //endregion
 
 
 
@@ -56,44 +83,72 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
 
 //平台
 Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
-    //商户分类
+    //region 商户分类
     Route::any("admin/login","AdminController@login")->name("admin.login");
     Route::get("admin/index","AdminController@index")->name("admin.index");
     Route::get("shop/list","AdminController@list")->name("shop.list");
+    //endregion
 
-    //审核
+    //region审核
     Route::any("admin/audit/{id}","AdminController@audit")->name("admin.audit");
+    //endregion
     //禁用
-
-    //分类管理 显示
+    //region 分类管理
+    // 显示
     Route::get("cate/index","ShopCategoryController@index")->name("cate.index");
     //添加 修改 删除
     Route::any("cate/add","ShopCategoryController@add")->name("cate.add");
     Route::any("cate/edit/{id}","ShopCategoryController@edit")->name("cate.edit");
     Route::get("cate/del/{id}","ShopCategoryController@del")->name("cate.del");
+    //endregion
 
-
-
-    //店户管理 显示  重置密码  删除
+    //region店户管理
+    // 显示
     Route::get("user/list","AdminController@indexUser")->name("user.list");
+    #重置密码
     Route::get("user/edit/{id}","AdminController@editUser")->name("admin.user.edit");
     Route::get("user/del/{id}","AdminController@delUser")->name("admin.user.del");
 
+    //endregion
 
-
-    //修改管理员信息
+    //region修改管理员信息
     Route::any("admin/edit/{id}","AdminController@edit")->name("admin.edit");
     //退出
     Route::get("admin/logout","AdminController@logout")->name("admin.logout");
+    //endregion
 
-    //平台添加商户
+    //region平台添加商户
     Route::any("shop/add/{id}","ShopController@add")->name("admin.shop.add");
+    //endregion
 
-
-    //添加活动
+    //region添加活动
     Route::get("activity/index","ActivityController@index")->name("activity.index");
     Route::any("activity/add","ActivityController@add")->name("activity.add");
     Route::any("activity/edit/{id}","ActivityController@edit")->name("activity.edit");
     Route::get("activity/del/{id}","ActivityController@del")->name("activity.del");
+    //endregion
 
+
+    //region 订单管理
+    Route::get("admin/order/index","OrderController@index")->name("admin.order.index");
+    Route::get("order/del/{id}","OrderController@del")->name("admin.order.del");
+
+    //endregion
+
+    //region 统计
+    #销量每日统计
+    Route::get("order/day","OrderController@day")->name("admin.order.day");
+    #销量每月
+    Route::get("order/month","OrderController@month")->name("admin.order.month");
+    #商品
+    Route::get("order/menuday","OrderController@menuDay")->name("admin.order.menu_day");
+    Route::get("order/menu","OrderController@menu")->name("admin.order.menu");
+
+    #查看
+    Route::get('order/look/{id}', "OrderController@look")->name('order.look');
+    //endregion
+
+    //region  会员
+    Route::get("admin/member/index","MemberController@day")->name("admin.member");
+    //endregion
 });

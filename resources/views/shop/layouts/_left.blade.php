@@ -56,10 +56,49 @@
             </li>
 
 
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-tasks" ></i> <span>订单管理</span>
+                    <span class="pull-right-container">
+                   <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li><a href="{{route("shop.order.index")}}"><i class="fa fa-circle-o"></i> 查看订单</a></li>
+                    <li><a href="{{route("shop.order.day")}}"><i class="fa fa-circle-o"></i> 按日统计</a></li>
+                    <li><a href="{{route("shop.order.month")}}"><i class="fa fa-circle-o"></i> 按月统计</a></li>
+
+                </ul>
+
+            </li>
+
+
+            <li class="treeview">
+                <a href="#">
+                    <i class="fa fa-tasks" ></i> <span>菜品统计管理</span>
+                    <span class="pull-right-container">
+                   <i class="fa fa-angle-left pull-right"></i>
+            </span>
+                </a>
+                <ul class="treeview-menu">
+
+                    <li><a href="{{route("shop.order.menu")}}"><i class="fa fa-circle-o"></i> 菜品总统计</a></li>
+                    <li> <a href="{{route("shop.order.menu_day")}}"><i class="fa fa-circle-o"></i> 菜品天统计量</a></li>
+                    <li> <a href="{{route("shop.order.menu_month")}}"><i class="fa fa-circle-o"></i> 菜品月统计量</a></li>
+
+
+
+
+                </ul>
+
+            </li>
+
+
             <li class="header">LABELS</li>
             <li><a href="#"><i class="fa fa-circle-o text-red"></i> <span>Important</span></a></li>
             <li><a href="#"><i class="fa fa-circle-o text-yellow"></i> <span>Warning</span></a></li>
             <li><a href="#"><i class="fa fa-circle-o text-aqua"></i> <span>Information</span></a></li>
+
         </ul>
     </section>
     <!-- /.sidebar -->

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Redis;
 use Mrgoon\AliSms\AliSms;
 use Illuminate\Support\Facades\Validator;
 
-class MemberController extends Controller
+class MemberController extends BaseController
 {
     //注册
     public function reg( Request $request ){

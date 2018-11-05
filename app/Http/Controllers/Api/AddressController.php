@@ -7,11 +7,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-class AddressController extends Controller
+class AddressController extends BaseController
 {
     //显示所有
-    public function index(  ){
-        $addresses = Address::all();
+    public function index( Request $request ){
+        //应该显示本用户的地址
+        $userId=$request->get("user_id");
+        $addresses=Address::where("user_id",$userId)->get();
+
         return $addresses;
     }
     
