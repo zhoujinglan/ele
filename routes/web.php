@@ -131,7 +131,6 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     Route::get("activity/del/{id}","ActivityController@del")->name("activity.del");
     //endregion
 
-
     //region 订单管理
     Route::get("admin/order/index","OrderController@index")->name("admin.order.index");
     Route::get("order/del/{id}","OrderController@del")->name("admin.order.del");
@@ -154,6 +153,7 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     //region  会员
     Route::get("admin/member/index","MemberController@day")->name("admin.member.index");
     //endregion
+
     //region 权限添加
     Route::get("per/index","PermissionController@index")->name("per.index");
     Route::any("per/add","PermissionController@add")->name("per.add");
@@ -166,5 +166,9 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     Route::any("role/add","RoleController@add")->name("role.add");
     Route::any("role/edit/{id}","RoleController@edit")->name("role.edit");
     Route::get("role/del/{id}","RoleController@del")->name("role.del");
+    //endregion
+
+    //region导航栏菜单添加
+    Route::any("nav/add","NavController@add")->name("nav.add");
     //endregion
 });

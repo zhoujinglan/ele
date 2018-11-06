@@ -29,78 +29,85 @@
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="{{route("admin.index")}}">平台首页 <span class="sr-only">(current)</span></a></li>
 
+                    @foreach(\App\Models\Nav::where("pid",0)->get() as $k1=>$v1)
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">店铺分类 <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{$v1->name}} <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{route("cate.index")}}">店铺列表</a></li>
-                            <li><a href="{{route("cate.add")}}">添加店铺</a></li>
-
-
+                            @foreach(\App\Models\Nav::where("pid",$v1->id)->get() as $k2=>$v2)
+                            <li><a href="{{route($v2->url)}}">{{$v2->name}}</a></li>
+                            @endforeach
                         </ul>
                     </li>
-
-                    <li ><a href="{{route("shop.list")}}">店铺申请处理</a></li>
-                    <li><a href="{{route("user.list")}}">商户列表</a></li>
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">活动管理 <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{route("activity.index")}}">活动列表</a></li>
-                            <li><a href="{{route("activity.add")}}">添加活动</a></li>
-
-
-                        </ul>
-                    </li>
-
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">订单管理 <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{route("admin.order.index")}}">订单列表</a></li>
-                            <li><a href="{{route("admin.order.day")}}">每日统计</a></li>
-                            <li><a href="{{route("admin.order.month")}}">每月统计</a></li>
-
-
-                        </ul>
-                    </li>
-
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">会员管理 <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-
-                            <li><a href="{{route('admin.member.index')}}">会员列表</a></li>
+                    @endforeach
 
 
 
-                        </ul>
-                    </li>
+
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">店户管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+                            {{--<li ><a href="{{route("shop.list")}}">店铺申请处理</a></li>--}}
+                            {{--<li><a href="{{route("user.list")}}">商户列表</a></li>--}}
 
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">权限管理 <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-
-                            <li><a href="{{route('per.index')}}">权限列表</a></li>
-                            <li><a href="{{route('per.add')}}">权限添加</a></li>
-
-
-
-                        </ul>
-                    </li>
+                        {{--</ul>--}}
+                    {{--</li>--}}
+                    {{----}}
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">活动管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+                            {{--<li><a href="{{route("activity.index")}}">活动列表</a></li>--}}
+                            {{--<li><a href="{{route("activity.add")}}">添加活动</a></li>--}}
 
 
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">角色管理 <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
+                        {{--</ul>--}}
+                    {{--</li>--}}
+                    {{----}}
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">订单管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+                            {{--<li><a href="{{route("admin.order.index")}}">订单列表</a></li>--}}
+                            {{--<li><a href="{{route("admin.order.day")}}">每日统计</a></li>--}}
+                            {{--<li><a href="{{route("admin.order.month")}}">每月统计</a></li>--}}
 
-                            <li><a href="{{route('role.index')}}">角色列表</a></li>
-                            <li><a href="{{route('role.add')}}">角色添加</a></li>
+
+                        {{--</ul>--}}
+                    {{--</li>--}}
+                    {{----}}
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">会员管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+
+                            {{--<li><a href="{{route('admin.member.index')}}">会员列表</a></li>--}}
 
 
 
-                        </ul>
-                    </li>
+                        {{--</ul>--}}
+                    {{--</li>--}}
+
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">权限管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+
+                            {{--<li><a href="{{route('per.index')}}">权限列表</a></li>--}}
+                            {{--<li><a href="{{route('per.add')}}">权限添加</a></li>--}}
+
+
+
+                        {{--</ul>--}}
+                    {{--</li>--}}
+                    {{----}}
+                    {{--<li class="dropdown">--}}
+                        {{--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">角色管理 <span class="caret"></span></a>--}}
+                        {{--<ul class="dropdown-menu">--}}
+
+                            {{--<li><a href="{{route('role.index')}}">角色列表</a></li>--}}
+                            {{--<li><a href="{{route('role.add')}}">角色添加</a></li>--}}
+
+
+
+                        {{--</ul>--}}
+                    {{--</li>--}}
 
 
                 </ul>

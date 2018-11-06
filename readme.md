@@ -1348,3 +1348,179 @@ html
     </form>
 ````
 
+# day11
+
+### 开发任务
+
+#### 平台
+
+- 导航菜单管理
+- 根据权限显示菜单
+- 配置RBAC权限管理
+
+#### 商家
+
+- 发送邮件(商家审核通过,以及有订单产生时,给商家发送邮件提醒) 用户
+- 下单成功时,给用户发送手机短信提醒
+
+#### 实现步骤
+
+1.导航菜单管理
+
+```
+    //添加
+public function add(Request $request  ){
+
+    if($request->isMethod('post')){
+        //验证
+        //接收
+        $data =$request->post();
+        //添加入库
+        Nav::create($data);
+        session("success","添加成功");
+    }
+    //获取所有路由
+    //先声明一个空数组来保存路由名字
+    $urls=[];
+    //得到所有路由
+
+    $routes=Route::getRoutes();
+    //循环遍历所有路由
+    foreach($routes as $route){
+        if(isset($route->action["namespace"]) && $route->action["namespace"]=="App\Http\Controllers\Admin"){
+            //读取路由名 并保存
+            $urls[]=$route->action['as'];
+        }
+    }
+    //从数据读取已经存在的
+    $pers =Nav::pluck("url")->toArray();
+    //去掉已经存在的路由
+    $urls =array_diff($urls,$pers);
+    //显示视图
+    return view("admin.nav.add",compact("urls"));
+}
+```
+
+2.html页面显示遍历菜单
+
+```
+
+                    @foreach(\App\Models\Nav::where("pid",0)->get() as $k1=>$v1)
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{$v1->name}} <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            @foreach(\App\Models\Nav::where("pid",$v1->id)->get() as $k2=>$v2)
+                            <li><a href="{{route($v2->url)}}">{{$v2->name}}</a></li>
+                            @endforeach
+                        </ul>
+                    </li>
+                    @endforeach
+
+
+```
+
+3.发送邮件
+
+```
+邮件发送实在通过审核后 所以这个方法直接写在店铺审核中、
+ //审核
+    public function audit($id){
+        $one = Shop::find($id);
+       // dd($one);
+        $user =User::where("id",$one->user_id)->first();
+        //dd($user->email);
+       //判断状态
+          //dd($data);
+        if( DB::update( 'update shops set status = 1 where id =:id', [ $id]) ){
+            //发邮箱通知
+            $shopName=$one->shop_name;
+            $to =$user->email;//收件人
+            $subject = $shopName.' 审核通知';//邮件标题
+            \Illuminate\Support\Facades\Mail::send(
+                'emails.shop',//视图
+                compact("shopName"),//传递给视图的参数
+                function ($message) use($to, $subject) {
+                    $message->to($to)->subject($subject);
+                }
+            );
+
+        }
+            //跳转
+            return redirect()->route("shop.list");
+
+
+        //显示视图
+        //return view("admin.shop.audit",compact("one"));
+
+    }
+```
+
+D:\lv\ele\resources\views\emails\shop.blade.php 创建视图  <-这一步很重要
+
+```
+<p>
+    你的店铺：{{$shopName}} 已通过审核，可以登录了
+</p>
+```
+
+4.自己更改了需求  支付成功后发送短信
+
+```
+写在接口控制器下
+public function pay(Request $request){
+        //得到订单id
+        $id =$request->post("id");
+       // dd($id);
+        //得到订单
+        $order=Order::find($id);
+
+        //得到用户
+        $member=Member::find($order->user_id);
+        //判断用户余额是否足够
+        if($order->total > $member->money){
+            return [
+                'status'=>"false",
+                'message'=>"余额不足 请换个支付",
+            ];
+        }
+
+        //余额充足 请支付  减去订单金额
+        DB::transaction(function() use($member,$order){
+            $member->money=$member->money -$order->total;
+            $member->save();
+            //更改订单状态
+            $order->status=1;
+            $order->save();
+        });
+        //支付成功
+        //得到电话号码
+        $tel =$order->tel;
+        //         dd($tel);
+        //        $tel=18602302240;
+        //得到店铺id
+        $shop_id = $order->shop_id;
+        //得到店铺信息
+        $shop=Shop::where("id",$shop_id)->first();
+        //dd($shop->shop_name);
+        //发短信
+        $code="最让你舍不得的平台eles的".$shop->shop_name;
+        //        dd($code);
+        //4. 把验证码发给手机 用到阿里云短信服务
+        $config = [
+            'access_key' => env("ALIYUNU_ACCESS_ID"),
+            'access_secret' => env("ALIYUNU_ACCESS_KEY"),
+            'sign_name' => '个人生活记录',
+        ];
+        $sms=New AliSms();
+        //        dd($tel);
+        $response = $sms->sendSms($tel, "SMS_150575336", ['name'=> $code], $config);
+        //        dd($response);
+        //返回成功信息
+        return [
+            'status'=>"true",
+            'message'=>"支付成功",
+        ];
+
+    }
+```
+

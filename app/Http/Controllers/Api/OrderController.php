@@ -12,6 +12,7 @@ use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Mrgoon\AliSms\AliSms;
 
 
 class OrderController extends BaseController
@@ -117,6 +118,8 @@ class OrderController extends BaseController
             ];
         }
 
+
+
         return [
             'status'=>"true",
             'message'=>"添加成功",
@@ -171,6 +174,7 @@ class OrderController extends BaseController
        // dd($id);
         //得到订单
         $order=Order::find($id);
+
         //得到用户
         $member=Member::find($order->user_id);
         //判断用户余额是否足够
@@ -189,7 +193,30 @@ class OrderController extends BaseController
             $order->status=1;
             $order->save();
         });
+        //支付成功
+        //得到电话号码
+        $tel =$order->tel;
+        //         dd($tel);
+        //        $tel=18602302240;
+        //得到店铺id
+        $shop_id = $order->shop_id;
+        //得到店铺信息
+        $shop=Shop::where("id",$shop_id)->first();
+        //dd($shop->shop_name);
+        //发短信
+        $code="最让你舍不得的平台eles的".$shop->shop_name;
+        //        dd($code);
+        //4. 把验证码发给手机 用到阿里云短信服务
+        $config = [
+            'access_key' => env("ALIYUNU_ACCESS_ID"),
+            'access_secret' => env("ALIYUNU_ACCESS_KEY"),
+            'sign_name' => '个人生活记录',
+        ];
 
+        $sms=New AliSms();
+        //        dd($tel);
+        $response = $sms->sendSms($tel, "SMS_150575336", ['name'=> $code], $config);
+        //        dd($response);
 
         //返回成功信息
         return [

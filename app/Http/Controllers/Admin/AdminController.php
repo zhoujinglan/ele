@@ -109,10 +109,28 @@ class AdminController extends BaseController
     //审核
     public function audit($id){
         $one = Shop::find($id);
+       // dd($one);
+        $user =User::where("id",$one->user_id)->first();
+        //dd($user->email);
        //判断状态
 
           //dd($data);
-            DB::update('update shops set status = 1 where id =:id', [$id]);
+        if( DB::update( 'update shops set status = 1 where id =:id', [ $id]) ){
+            //发邮箱通知
+            $shopName=$one->shop_name;
+            $to =$user->email;//收件人
+            $subject = $shopName.' 审核通知';//邮件标题
+            \Illuminate\Support\Facades\Mail::send(
+                'emails.shop',//视图
+                compact("shopName"),//传递给视图的参数
+                function ($message) use($to, $subject) {
+                    $message->to($to)->subject($subject);
+                }
+            );
+
+
+
+        }
             //跳转
             return redirect()->route("shop.list");
 

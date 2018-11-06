@@ -6,7 +6,12 @@
         {{ csrf_field() }}
         <div class="form-group">
             <label>名称</label>
-            <input type="text" class="form-control"  placeholder="名称" name="name" value="{{old("name")}}">
+            <select name="name" class="form-control" >
+                <option value="">请选择权限名</option>
+                @foreach($urls as $url)
+                <option value="{{$url}}">{{$url}}</option>
+                    @endforeach
+            </select>
         </div>
 
 

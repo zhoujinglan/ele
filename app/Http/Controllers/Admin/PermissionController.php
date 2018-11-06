@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 
 class PermissionController extends Controller
@@ -17,6 +18,23 @@ class PermissionController extends Controller
 
     //添加权限
     public function add(Request $request){
+
+        //获取所有路由
+        //先声明一个空数组来保存路由名字
+        $urls=[];
+        //得到所有路由
+        $routes=Route::getRoutes();
+        //循环遍历所有路由
+        foreach($routes as $route){
+            if(isset($route->action["namespace"]) && $route->action["namespace"]=="App\Http\Controllers\Admin"){
+                //读取路由名 并保存
+                $urls[]=$route->action['as'];
+            }
+        }
+        //从数据读取已经存在的
+        $pers =Permission::pluck("name")->toArray();
+        //去掉已经存在的路由
+        $urls =array_diff($urls,$pers);
         //判断接收方法
         if($request->isMethod("post")){
             //验证
@@ -28,11 +46,12 @@ class PermissionController extends Controller
             $data = $request->post();
             $data['guard_name']="admin";
             //dd($data);
-            Permission::create($data);
+           $per= Permission::create($data);
+            return redirect()->route('per.index')->with('success', '创建' . $per->name . "成功");
 
         }
         //引入视图
-        return view("admin.per.add");
+        return view("admin.per.add",compact('urls'));
     }
 
     //修改
