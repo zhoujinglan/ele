@@ -74,7 +74,7 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
     #处理订单状态
     Route::get('order/status/{id}/{status}', "OrderController@status")->name('order.status');
     #查看
-    Route::get('order/look/{id}', "OrderController@look")->name('order.look');
+    Route::get('order/look/{id}', "OrderController@look")->name('shop.order.look');
     //endregion
 
 
@@ -151,7 +151,7 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
     //endregion
 
     //region  会员
-    Route::get("admin/member/index","MemberController@day")->name("admin.member.index");
+    Route::get("admin/member/index","MemberController@index")->name("admin.member.index");
     //endregion
 
     //region 权限添加

@@ -128,11 +128,11 @@ class AdminController extends BaseController
                 }
             );
 
-
+            //return redirect()->back()->with("success","审核通过");
 
         }
             //跳转
-            return redirect()->route("shop.list");
+            return redirect()->route("shop.list")->with("success","审核通过");
 
 
         //显示视图

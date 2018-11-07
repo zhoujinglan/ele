@@ -14,7 +14,16 @@ class OrderController extends Controller
     //显示店铺订单
     public function index(  ){
 
-        $orders=Order::where("shop_id",Auth::user()->shop->id)->paginate(3);
+        $code =request()->get("order_code");
+        $status=request()->get("status");
+        $query =Order::orderBy("id");
+        if($code != null){
+            $query->where("order_code",$code);
+        }
+        if($status != null){
+            $query->where("status",$status);
+        }
+        $orders=$query->where("shop_id",Auth::user()->shop->id)->paginate(3);
 
         //引入视图
         return view("shop.order.index",compact("orders"));
@@ -79,11 +88,42 @@ class OrderController extends Controller
   //按菜品日日销量
     public function menuDay(){
 
-        $datas = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name"))
-            ->groupBy('date','goods_name')
-            ->get();
+        //$datas = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name"));
+           // ->groupBy('date' );
+        //$datas=OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date"))->orderBy("id");
+        $datas=OrderDetail::orderBy("created_at", 'desc');
+//        dd($datas->toArray());
+        //把事件只读出月份 搜索用
+        $months = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name" )) ->groupBy('date' )->get();
+        //dd($months);
+        $url =request()->query();
+        $start = request()->get('start');
+        $end =request()->get("end");
+        $month =request()->get('month');
+        $name =request()->get('name');
+//       dd($name);
+//        $datas=OrderDetail::orderBy("id")->where("goods_name",$name)->get();
+//        dd($datas->toArray());
+
+        if ($start !== null) {
+            $datas->whereDate("created_at", ">=", $start);
+        }
+        if ($end !== null) {
+            $datas->whereDate("created_at", "<=", $end);
+        }
+
+        if($month != null){
+            $datas ->where(DB::raw("DATE_FORMAT(created_at,'%Y-%m')"),"=",$month);
+        }
+        if($name !=null){
+            $datas->where("goods_name","like","%{$name}%");
+//            exit("1454dftg");
+        }
+
+        //dd($datas->get());->limit(30);
+       $datas= $datas->paginate(5);
         //dd($datas);
-        return view("shop.order.menu_day",compact('datas'));
+        return view("shop.order.menu_day",compact('datas',"months","url"));
 
     }
 //每月统计
@@ -107,5 +147,11 @@ class OrderController extends Controller
         $order->save();
         return back()->with("success","修改成功");
         
+    }
+    //查看某一条
+    public function look($id  ){
+            $order =Order::find($id);
+            //视图
+        return view("shop.order.look",compact("order"));
     }
 }
