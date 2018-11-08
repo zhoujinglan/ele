@@ -77,6 +77,11 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
     Route::get('order/look/{id}', "OrderController@look")->name('shop.order.look');
     //endregion
 
+    //region抽奖活动
+    Route::get("event/index","EventController@index")->name("shop.event.index");
+    Route::any("event/join/{id}","EventController@join")->name("shop.event.join");
+    Route::get("event/look/{id}","EventController@look")->name("shop.event.look");
+    //endregion
 
 
 });
@@ -170,5 +175,19 @@ Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
 
     //region导航栏菜单添加
     Route::any("nav/add","NavController@add")->name("nav.add");
+    //endregion
+
+    //region抽奖
+    Route::get("event/index","EventController@index")->name("admin.event.index");
+    Route::any("event/add","EventController@add")->name("admin.event.add");
+    Route::any("event/edit/{id}","EventController@edit")->name("admin.event.edit");
+    Route::get("event/del/{id}","EventController@del")->name("admin.event.del");
+    Route::get("event/open/{id}","EventController@open")->name("admin.event.open");
+    //endregion
+    //region 抽奖
+    Route::get("event/prize/index","EventPrizeController@index")->name("admin.event_prize.index");
+    Route::any("event/prize/add","EventPrizeController@add")->name("admin.event_prize.add");
+    Route::any("event/prize/edit/{id}","EventPrizeController@edit")->name("admin.event_prize.edit");
+    Route::get("event/prize/del/{id}","EventPrizeController@del")->name("admin.event_prize.del");
     //endregion
 });

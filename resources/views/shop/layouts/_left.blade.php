@@ -86,10 +86,8 @@
                     <li> <a href="{{route("shop.order.menu_day")}}"><i class="fa fa-circle-o"></i> 菜品天统计量</a></li>
                     <li> <a href="{{route("shop.order.menu_month")}}"><i class="fa fa-circle-o"></i> 菜品月统计量</a></li>
 
-
-
-
                 </ul>
+            <li><a href="{{route("shop.event.index")}}"><i class="fa fa-circle-o"></i> 抽奖活动 </a></li>
 
             </li>
 

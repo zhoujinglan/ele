@@ -28,6 +28,7 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li class="active"><a href="{{route("admin.index")}}">平台首页 <span class="sr-only">(current)</span></a></li>
+                    {{--根据权限设置--}}
 
                     @foreach(\App\Models\Nav::where("pid",0)->get() as $k1=>$v1)
                     <li class="dropdown">
