@@ -10,7 +10,7 @@
             <td>名称</td>
             <td>活动id</td>
             <td>描述</td>
-            <td>user_id</td>
+            <td>中奖用户</td>
             <td>操作</td>
         </tr>
         @foreach($prizes as $prize)
@@ -18,7 +18,7 @@
                 <td>{{$prize->id}}</td>
                 <td>{{$prize->name}}</td>
 
-                <td>{{$prize->event_id}}</td>
+                <td>{{$prize->event->title}}</td>
                 <td>{{$prize->description}}</td>
                 <td>
                     @if(empty($prize->user_id))

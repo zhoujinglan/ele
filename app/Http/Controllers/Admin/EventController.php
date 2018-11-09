@@ -8,8 +8,9 @@ use App\Models\EventUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
 
-class EventController extends Controller
+class EventController extends BaseController
 {
     /*
      * 抽奖活动管理
@@ -38,9 +39,12 @@ class EventController extends Controller
             $data['end_time'] =strtotime($data['end_time']);
             $data['prize_time'] =strtotime($data['prize_time']);
             $data['is_prize']=0;
+
             //dd($data);
             //数据入库
-            Event::create($data);
+            $event=Event::create($data);
+            //把报名人数添加到缓存中 //记得打开redis 服务
+            Redis::set("event_num:".$event->id,$event->num);
             return redirect()->route("admin.event.index")->with("success","添加成功");
         }
 
@@ -50,12 +54,17 @@ class EventController extends Controller
 
     //开奖活动
     public function open(Request $request,$id){
-        //通过当前活动id 找出参与活动的用户 转化成数组
-        $userId=EventUser::where("event_id",$id)->pluck("user_id")->toArray();
-        //dd($userId);
-        //将用户id打乱
-        shuffle($userId);//返回ture
-        //dd($user);
+        //开奖前把报名人数同步到数据库中
+        $users=Redis::smembers("event:".$id);
+        foreach($users as $user){
+            EventUser::insert([
+                'event_id'=>$id,
+                'user_id'=>$user,
+                              ]);
+        }
+        //通过当前活动id 找出参与活动的用户 转化成数组 将用户id打乱
+        $userId=EventUser::where("event_id",$id)->pluck("user_id")->shuffle();
+
         //找出当前的活动奖品 并随机打乱
         $prizes =EventPrize::where("event_id",$id)->get()->shuffle();
       // dd($prizes);
@@ -64,9 +73,10 @@ class EventController extends Controller
             //dd($prize);
             $prize->user_id=$userId[$k];
            // dd($prize->user_id);
+            //得到某条用户信息
             $one =User::find( $prize->user_id);
-            $name=$one->name;
-            $to =$one->email;//收件人
+            $name=$one->name;//得到中奖人信息
+            $to =$one->email;//收件人邮箱
             $subject = '中奖通知';//邮件标题
             \Illuminate\Support\Facades\Mail::send(
                 'emails.open',//视图

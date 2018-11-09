@@ -24,7 +24,7 @@ class EventPrizeController extends Controller
             return redirect()->route("admin.event_prize.index")->with("success","添加成功");
         }
         //得到活动
-        $events=Event::where("start_time",">=",time())->get();
+        $events=Event::where("prize_time",">",time())->get();
         return view("admin.event_prize.add",compact("events"));
     }
 }

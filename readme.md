@@ -1525,5 +1525,68 @@ public function pay(Request $request){
 ```
 ##### 根据权限显示菜单
 实现步骤
+开始抽奖  抽奖
+```php
+ //开奖活动
+    public function open(Request $request,$id){
+        //通过当前活动id 找出参与活动的用户 转化成数组
+        $userId=EventUser::where("event_id",$id)->pluck("user_id")->toArray();
+        //dd($userId);
+        //将用户id打乱
+        shuffle($userId);//返回ture
+        //dd($user);
+        //找出当前的活动奖品 并随机打乱
+        $prizes =EventPrize::where("event_id",$id)->get()->shuffle();
+      // dd($prizes);
+        //把奖品给对应的user_id
+        foreach($prizes as $k=>$prize){
+            //dd($prize);
+            $prize->user_id=$userId[$k];
+           // dd($prize->user_id);
+            $one =User::find( $prize->user_id);
+            $name=$one->name;
+            $to =$one->email;//收件人
+            $subject = '中奖通知';//邮件标题
+            \Illuminate\Support\Facades\Mail::send(
+                'emails.open',//视图
+                compact("name"),//传递给视图的参数
+                function ($message) use($to, $subject) {
+                    $message->to($to)->subject($subject);
+                }
+            );
+            //保存修改
+            $prize->save();
+        }
+        //修改活动状态
+        $event=Event::find($id);
+        $event->is_prize=1;
+        $event->save();
+        return redirect()->back()->with("success","开奖完成");
+    }
+```
+记得创建视图 在email下创建open
 
+商户报名抽奖
+```php
+public function join($id  ){
+        $event=Event::find($id);
+       // dd($event);
+        $num=EventUser::where('event_id',$event->id)->count();
+        //dd($num);
+        $user=EventUser::where('event_id',$event->id)->first();
+        //dd($user);
+        if($num > $event->num ){
+                return back()->with("success","报名已满");
+        }
 
+        $data['user_id']=Auth::user()->id;
+        //dd( $data['user_id']);
+        $data['event_id']=$id;
+        if( $data['user_id'] == $user->user_id){
+            return back()->with("warning","你已报名");
+        }
+        EventUser::create($data);
+        return back()->with("success","报名成功 等待开奖");
+
+    }
+```

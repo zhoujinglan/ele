@@ -87,10 +87,10 @@ class OrderController extends Controller
     }
   //按菜品日日销量
     public function menuDay(){
-
-        //$datas = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name"));
-           // ->groupBy('date' );
-        //$datas=OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date"))->orderBy("id");
+        //先找到店铺ID
+        $shopId=Auth::user()->shop->id;
+        //再通过店铺ID把属于这个店的所有订单id 都找出来
+        $orderIds=Order::where("shop_id",$shopId)->whereDate('created_at', '2018-11-04')->pluck("id")->toArray();
         $datas=OrderDetail::orderBy("created_at", 'desc');
 //        dd($datas->toArray());
         //把事件只读出月份 搜索用

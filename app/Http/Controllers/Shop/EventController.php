@@ -8,6 +8,7 @@ use App\Models\EventUser;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 
 class EventController extends Controller
 {
@@ -22,22 +23,25 @@ class EventController extends Controller
     public function join($id  ){
         $event=Event::find($id);
        // dd($event);
-        $num=EventUser::where('event_id',$event->id)->count();
+       // $num=EventUser::where('event_id',$event->id)->count();
+        $num=Redis::get("event_num:".$id);//取出redis中限制报名的人数
         //dd($num);
-        $user=EventUser::where('event_id',$event->id)->first();
+
+        //dd($num);
+        //$user=EventUser::where('event_id',$event->id)->first();
         //dd($user);
-        if($num > $event->num ){
-                return back()->with("success","报名已满");
+        $users=Redis::scard("event:".$id);//取出已报名人数
+        //dd($users);
+        if($users < $num ){
+            //若报名人数没有满  把报名的人加入缓存
+            $userId=Auth::user()->id;
+            Redis::sadd("event:".$id,$userId);
+            return back()->with("success","报名成功 等待开奖");
         }
 
-        $data['user_id']=Auth::user()->id;
-        //dd( $data['user_id']);
-        $data['event_id']=$id;
-        if( $data['user_id'] == $user->user_id){
-            return back()->with("warning","你已报名");
-        }
-        EventUser::create($data);
-        return back()->with("success","报名成功 等待开奖");
+        return back()->with("success","报名已满");
+
+
 
     }
     //查看

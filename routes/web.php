@@ -16,7 +16,7 @@ Route::get('/', function () {
 });
 
 //商家
-Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
+Route::domain(env("SHOP_URL"))->namespace("Shop")->group(function (){
 
     //region商户模块
     Route::get("index","IndexController@index")->name("index");
@@ -87,7 +87,7 @@ Route::domain("shop.ele.com")->namespace("Shop")->group(function (){
 });
 
 //平台
-Route::domain("admin.ele.com")->namespace("Admin")->group(function (){
+Route::domain(env("ADMIN_URL"))->namespace("Admin")->group(function (){
     //region 商户分类
     Route::any("admin/login","AdminController@login")->name("admin.login");
     Route::any("admin/add","AdminController@add")->name("admin.add");

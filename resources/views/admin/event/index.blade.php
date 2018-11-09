@@ -12,7 +12,7 @@
             <td>开始时间</td>
             <td>结束 时间</td>
             <td>抽奖开始时间</td>
-            <td>抽奖人数</td>
+            <td>已报名/总人数</td>
             <td>是否开始</td>
             <td>操作</td>
         </tr>
@@ -24,7 +24,7 @@
                 <td>{{date("Y-m-d", $event['start_time'])}}</td>
                 <td>{{date("Y-m-d", $event['end_time'])}}</td>
                 <td>{{date("Y-m-d H:i:s", $event['prize_time'])}}</td>
-                <td>{{$event->num}}</td>
+                <td>{{\App\Models\EventUser::where('event_id',$event->id)->count()}}/{{$event->num}}</td>
                 <td>
                     @if($event->is_prize == 1)
                         开始
