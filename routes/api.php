@@ -16,37 +16,52 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::namespace("Api")->group(function (){
+    //region首页
+    Route::get( "shop/index", "ShopController@index" );
+    Route::get( "shop/detail", "ShopController@detail" );
+    //endregion
 
-Route::get("shop/index","Api\ShopController@index");
-Route::get("shop/detail","Api\ShopController@detail");
+    //region注册
+    Route::post( "member/reg", "MemberController@reg" );
+    //获得验证码
+    Route::get( "member/sms", "MemberController@sms" );
+    //登录
+    Route::post( "member/login", "MemberController@login" );
+    //忘记密码
+    Route::post( "member/reset", "MemberController@reset" );
+    //修改密码
+    Route::post( "member/change", "MemberController@change" );
+    //登录用户列表显示
+    Route::get( "member/detail", "MemberController@detail" );
+    Route::get( "member/money", "MemberController@money" );
+    //endregion
 
-//注册
-Route::post("member/reg","Api\MemberController@reg");
-//获得验证码
-Route::get("member/sms","Api\MemberController@sms");
-//登录
-Route::post("member/login","Api\MemberController@login");
-//忘记密码
-Route::post("member/reset","Api\MemberController@reset");
-//修改密码
-Route::post("member/change","Api\MemberController@change");
-//登录用户列表显示
-Route::get("member/detail","Api\MemberController@detail");
+    //region收货地址
+    #增删改查
+    Route::get( "address/index", "AddressController@index" );
+    Route::post( "address/add", "AddressController@add" );
+    Route::post( "address/edit", "AddressController@edit" );
+    Route::get( "address/getOne", "AddressController@getOne" );//回显一条
+    //endregion
 
-//收货地址 增删改查
-Route::get("address/index","Api\AddressController@index");
-Route::post("address/add","Api\AddressController@add");
-Route::post("address/edit","Api\AddressController@edit");
-Route::get("address/getOne","Api\AddressController@getOne");//回显一条
+    //region购物车
+    Route::post( "cart/add", "CartController@add" );
+    Route::get( "cart/index", "CartController@index" );
+    //endregion
 
-//购物车
-Route::post("cart/add","Api\CartController@add");
-Route::get("cart/index","Api\CartController@index");
+    //region订单
+    Route::post( "order/add", "OrderController@add" );
+    Route::get( "order/detail", "OrderController@detail" );
+    Route::any( "order/index", "OrderController@index" );
+    Route::any( "order/clear", "OrderController@clear" );
+    //endregion
 
-//订单生成
-Route::post("order/add","Api\OrderController@add");
-Route::get("order/detail","Api\OrderController@detail");
-Route::any("order/index","Api\OrderController@index");
-
-//支付
-Route::post("order/pay","Api\OrderController@pay");
+    //region支付
+    Route::post("order/pay", "OrderController@pay");
+    # 微信支付
+    Route::get("order/wxPay", "OrderController@wxPay");
+    Route::get("order/ok","OrderController@ok");
+    Route::get("order/status","OrderController@status");
+    //endregion
+});

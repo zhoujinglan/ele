@@ -9,10 +9,14 @@ use App\Models\Menu;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Shop;
+use EasyWeChat\Foundation\Application;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\LabelAlignment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Mrgoon\AliSms\AliSms;
+use Endroid\QrCode\QrCode;
 
 
 class OrderController extends BaseController
@@ -224,6 +228,140 @@ class OrderController extends BaseController
             'message'=>"支付成功",
         ];
 
+
+    }
+
+    public function wxPay( ){
+        //接收id找出订单号
+        $id = \request()->get("id");
+        //dd($id);
+        $orderModel =Order::find($id);
+        //dd($orderModel);
+        //1配置
+        $options = config("wechat");
+        $app = new Application($options);
+        $payment = $app->payment;
+        //2生成订单
+        $attributes = [
+            'trade_type'       => 'NATIVE', // JSAPI，NATIVE，APP...
+            'body'             => '饿不饿点餐平台支付',
+            'detail'           => '饿不饿点餐平台支付吖',
+            'out_trade_no'     => $orderModel->order_code,//订单号
+            'total_fee'        => $orderModel->total * 100,  // 单位：分
+            'notify_url'       => 'http://xxx.com/order-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+            // 'openid'           => '当前用户的 openid', // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
+            // ...
+        ];
+        $order = new \EasyWeChat\Payment\Order($attributes);
+        //统一下单
+        $result = $payment->prepare($order);
+        //dd($result);
+        if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
+            $codeUrl = $result->code_url;
+
+            $qrCode = new QrCode($codeUrl);
+            $qrCode->setSize(300);//大小
+            // Set advanced options
+            $qrCode
+                ->setMargin(10)//外边框
+                ->setEncoding('UTF-8')//编码
+                ->setErrorCorrectionLevel(ErrorCorrectionLevel::HIGH)//容错级别
+                ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0])//码颜色
+                ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255])//背景色
+                ->setLabel('微信扫码支付', 16, public_path("font/msyh.ttc"), LabelAlignment::CENTER)
+                ->setLogoPath(public_path("images/logo.png"))//LOGO
+                ->setLogoWidth(100);//LOGO大小
+
+            // Directly output the QR code
+            header('Content-Type: ' . $qrCode->getContentType());//响应类型
+            exit($qrCode->writeString());
+        }else{
+            return $result;
+        }
+
+    }
+    //微信异步通知
+    public function ok(  ){
+        //1配置
+        $options = config("wechat");
+        $app = new Application($options);
+        //2.回调
+        $response = $app->payment->handleNotify(function($notify, $successful){
+            // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
+            // $order = 查询订单($notify->out_trade_no);
+            $order=Order::where("order_code",$notify->out_trade_no)->first();
+
+            if (!$order) { // 如果订单不存在
+                return 'Order not exist.'; // 告诉微信，我已经处理完了，订单没找到，别再通知我了
+            }
+
+            // 如果订单存在
+            // 检查订单是否已经更新过支付状态
+            if ($order->status==1) { // 假设订单字段“支付时间”不为空代表已经支付
+                return true; // 已经支付成功了就不再更新了
+            }
+
+            // 用户是否支付成功
+            if ($successful) {
+                // 不是已经支付状态则修改为已经支付状态
+                //$order->paid_at = time(); // 更新支付时间为当前时间
+                $order->status = 1;
+            }
+
+            $order->save(); // 保存订单
+
+            return true; // 返回处理完成
+        });
+
+        $response->send();
+    }
+    //修改状态
+    public function status(){
+
+        $id = \request()->get("id");
+        $order = Order::find($id);
+        return $order;
+
+    }
+
+    /*
+     * 处理超时未支付订单
+     * 
+     */
+    public function clear(  ){
+        /*
+         * 找出需要处理的订单 要是超时的 未支付的
+         * 创建时间小于当前时间多少分或者
+         * 创建时间<当前时间-60*60
+         */
+
+       // dd($orders->toArray());
+        //可以用到自动事务保证状态和库存同时修改
+        DB::transaction(function(){
+            $orders =Order::where("status",0)->where("created_at","<",date("Y-m-d H:i:s",time()-60*60))->get();
+            //把超时未支付的订单遍历出来 并修改状态-1
+            foreach($orders as $order){
+                $order->status=-1;
+                $order->save();
+
+                /*
+                 * 库存修改
+                 * 取出当前订单的商品 在商品订单表查询
+                 * 拿出要退的商品数量
+                 * 修改menu表的库存
+                 *
+                 */
+                $goods =OrderDetail::where("order_id",$order->id)->get();
+                //dd($goods);
+                //遍历商品 取出库存
+                foreach($goods as $good){
+                    $amount =$good->amount;
+                    $menuId=$good->goods_id;
+                    //修改库存
+                    Menu::where("id",$menuId)->increment("stock",$amount);
+                }
+            }
+        });
 
     }
 }

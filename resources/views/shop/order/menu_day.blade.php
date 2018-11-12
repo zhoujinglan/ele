@@ -5,12 +5,8 @@
 
         <form action="" class="form-inline pull-right" method="get">
 
-            <input type="date" name="start" class="form-control" size="2" placeholder="开始日期"
-                   value="{{old("start")}}"> -
-            <input type="date" name="end" class="form-control" size="2" placeholder="结束日期"
-                   value="">
-            <select name="month"class="form-control" >
-                <option value="">选择月份</option>
+            <select name="day"class="form-control" >
+                <option value="">选择时间</option>
                 @foreach($months as $month)
                 <option value="{{$month->date}}">{{$month->date}}</option>
                     @endforeach
@@ -24,23 +20,22 @@
             <br>
             <br>
             <tr>
-
-                <td>日期</td>
+                <td>商品id</td>
                 <td>名字</td>
                 <td>数量</td>
-                <td>单价</td>
+                <td>金额</td>
 
             </tr>
             @foreach($datas as $data)
                 <tr>
-                    <td>{{$data->created_at}}</td>
+                    <td>{{$data->goods_id}}</td>
                     <td>{{$data->goods_name}}</td>
-                    <td>{{$data->amount}}</td>
-                    <td>{{$data->goods_price}}</td>
+                    <td>{{$data->nums}}</td>
+                    <td>{{$data->price}}</td>
                 </tr>
             @endforeach
         </table>
-        {{$datas->appends($url)->links()}}
+{{--        {{$datas->appends($url)->links()}}--}}
     </div>
     </div>
     @endsection

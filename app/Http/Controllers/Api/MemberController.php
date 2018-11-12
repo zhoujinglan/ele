@@ -108,11 +108,16 @@ class MemberController extends BaseController
         $member = Member::where('username',$username)->first();
 //        dd($member);
         if( Hash::check($password,$member->password)){
+            //生成token
+            $token=md5($member->id.time());
+            //保存
+            Redis::setex("member:" . $member->id, 60 * 60 * 24 , $token);
             $data=[
                 'status'=>"true",
                 'message'=>"登录成功",
                 'user_id'=>$member->id,
                 'username'=>$username,
+                'token' => md5($member->id . time())
 
             ];
         }else{
@@ -202,6 +207,44 @@ class MemberController extends BaseController
 
         $member = Member::find($request->get('user_id'));
         return $member;
+    }
+    /*
+     * 接口安全
+     */
+
+    public function money(  ){
+
+        //验证签名
+        //设置密钥
+
+        $key="itasdfgh123456lkj";
+        $data=request()->all();
+        unset($data['sign']);
+        //排序
+        ksort($data);
+        //拼接
+        $str="";
+        foreach($data as $k=>$v){
+            $str=$str.$k.$v;
+        }
+        dd($str);
+        //验证后得到
+        $sign=md5($key.$str.$key);
+        //判断密钥是否正确
+        if($sign != request()->get("sign")){
+            return "请不要乱更改";
+        }
+
+        //接受数据
+        $memberId=request()->get("id");
+        $money= request()->get("money");
+        $token=request()->get("token");
+        //验证token  3957a8cd8768cad993efbc99968685a0
+        $tokenRedis=Redis::get("member:".$memberId);
+        if($token !=$tokenRedis){
+            return "fuck";
+        }
+        Member::where("id",$memberId)->increment("money",$money);
     }
 
 

@@ -6,6 +6,9 @@ use App\Models\MenuCategory;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 
 class ShopController extends BaseController
 {
@@ -13,12 +16,39 @@ class ShopController extends BaseController
     public function index(  ){
 
         $keyword = \request("keyword");
-        if ($keyword!=null) {
-            $shops = Shop::where("status",1)->where("shop_name","like","%{$keyword}%")->get();
+        //dd($keyword);
+        if ($keyword != null) {
+            //$shops = Shop::where("status",1)->where("shop_name","like","%{$keyword}%")->get();
+            $shops = Shop::search($keyword)->get();
+            //dd($shops->toArray());
         }else{
+            $shops=Cache::get("shop_index");
+            if(!$shops){
+                //如果文件中没有 那就在数据库拿取
+                //得到所有店铺，状态为1的
+                $shops = Shop::where("status",1)->get();
+                //把数据保存到redis 时间是分钟
+                Cache::set("shop_index",$shops,1);
+            }
+
+        }
+        /*
+         * 缓存实现店铺列表
+         */
+        //从文件中取出来的缓存的
+
+
+
+        /*
+        $shops =Redis::get("shop_index");
+        if(!$shops){
+            //如果redis没有 那就在数据库拿取
             //得到所有店铺，状态为1的
             $shops = Shop::where("status",1)->get();
+            Redis::setex("shop_index",60*60,json_encode($shops));
         }
+        $shops=json_decode($shops,true);
+        */
 
 
         //dd($shops->toArray());
@@ -28,7 +58,17 @@ class ShopController extends BaseController
             $shops[$k]->estimate_time=ceil($shops[$k]->distance/rand(100,150));
         }
       return $shops;
-    }
+        /*
+        foreach($shops as $k=>$v){
+            $shops[$k]['distance']=rand(1000,5000);
+            $shops[$k]['estimate_time']=ceil($shops[$k]['distance']/rand(100,150));
+        }
+        return $shops;
+        */
+
+   }
+
+
 
     //显示指定商家的店铺
     public function detail(  ){
@@ -82,7 +122,6 @@ class ShopController extends BaseController
         $shop->commodity=$cates;
         //dd($shop);
         return $shop;
-
 
 
     }

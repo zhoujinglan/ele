@@ -8,7 +8,7 @@
 - 商户：入住平台的餐馆 
 - 用户：订餐的用户
 
-## Day01
+# Day01
 
 ### 开发任务
 
@@ -69,7 +69,8 @@
 
 平台可以直接添加商家信息和账户，默认已审核通过
 
-### day2
+# day2
+
 1.完善第一天的 判断是有有店铺  可以不用 登录时已经判断
 ```$xslt
   public function index(  ){
@@ -245,9 +246,7 @@
 shop下边的shopcontroller继承有问题  继承出错导致权限调到admin里面
 2.用户申请店铺之后回到登录首页  并注销登录
 
-
-### day3
-## DAY03
+# day3
 
 ### 开发任务
 
@@ -408,6 +407,7 @@ php代码
 ```
 
 # day4
+
 ### 开发任务
 优化 - 将网站图片上传到阿里云OSS对象存储服务，以减轻服务器压力(https://github.com/jacobcyl/Aliyun-oss-storage) - 使用webuploder图片上传插件，提升用户上传图片体验
 
@@ -771,8 +771,11 @@ html地方
  ```php
 
  ```
-# day5 api接口
-开发任务
+# day5 
+
+api接口
+
+##### 开发任务
 接口开发
 
 商家列表接口(支持商家搜索)
@@ -979,14 +982,15 @@ composer require predis/predis
     ```
  ##### 添加之前注意清空之前的购物列表
  # Day08
- 开发任务
+#### 开发任务
  接口开发
 
  订单接口(使用事务保证订单和订单商品表同时写入成功)
 
 
 # Day09
- 开发任务
+#### 开发任务
+
  商户端
 
  订单管理[订单列表,查看订单,取消订单,发货]
@@ -1524,6 +1528,15 @@ public function pay(Request $request){
     }
 ```
 ##### 根据权限显示菜单
+
+
+
+```
+
+```
+
+
+
 实现步骤
 开始抽奖  抽奖
 ```php
@@ -1590,3 +1603,643 @@ public function join($id  ){
 
     }
 ```
+
+# day12
+
+#### 项目上线
+
+#### 上线步骤
+
+1. 解析域名 www @ * =====服务器IP A记录
+
+2. 登录服务器 执行命令安装宝塔
+
+   ```
+   yum install -y wget && wget -O install.sh http://download.bt.cn/install/install.sh && sh install.sh
+   ```
+
+3. 登录宝塔管理网址
+
+   ```
+   Bt-Panel: http://132.232.143.76:8888
+   username: *****
+   password: *****
+   ```
+
+4. 安装Lamp环境
+
+   PHP版本和MYSQL版本最好和本地开发环境保持一致
+
+
+5.用SSH管理工具进入到/www/wwwroot 目录下 执行如下命令
+
+```
+git clone https://github.com/zhoujinglan/ele.git work
+```
+
+6.在宝塔中添加一个网站  设置三个域名
+
+>运行目录public
+>
+>去掉跨站脚本攻击
+>
+>重启PHP
+>
+>网站根目录选择work
+
+7.composer设置重中国镜像  并给自己升级
+
+```
+composer config -g repo.packagist composer https://packagist.laravel-china.org
+composer self-update //提示升级才用
+```
+
+8.重新安装composer
+
+>在宝塔界面软件管理 php-7.0操作以下
+>
+>安装 fileinfo 扩展
+>
+>删除 proc_open 函数
+>
+>proc_get_status()
+
+```
+poser install 
+```
+
+9.在宝塔中新建.env空白文件 并把本地.env文件内容复制去  或者
+
+```
+cp .env.example .env
+php artisan key:generate //这样的文件会少一些之前设置的东西
+```
+
+并把数据库  用户名 密码修改l
+
+10.设置项目所有者
+
+```
+chown -R www.www /www/wwwroot/work
+```
+
+11.数据库数据传输
+
+12.以后代码上传后更新
+
+```
+git pull 
+```
+
+
+
+
+
+
+
+
+
+
+
+```
+
+时间修改回显
+public function edit(Request $request,$id)
+    {
+      $data=Activity::find($id);
+      $data->start_time=str_replace(" ","T",$data->start_time);
+        $data->end_time=str_replace(" ","T",$data->end_time);
+        if($request->isMethod("post")){
+            $da= $this->validate($request,[
+                "title"=>"required",
+                "start_time"=>"required",
+                "end_time"=>"required",
+                "content"=>"required"
+            ]);
+//            $da=$request->post();
+//           dd($da);
+            $da['start_time']=str_replace("T"," ",$da['start_time']);
+            $da['end_time']=str_replace("T"," ",$da['end_time']);
+
+//            dd($da);
+           $data->update($da);
+            return redirect()->intended(route("admin.activity.index"))->with("success","修改成功");
+        }
+        
+        
+      //回显  
+     $event['start_time']=date("Y-m-d",$event->start_time);
+     $event['end_time']=date("Y-m-d",$event->end_time);
+     $event['prize_time']=date("Y-m-d",$event->prize_time);
+
+```
+# Day14
+##### 开发任务
+微信支付
+
+##### 实现步骤
+
+1.接口添加
+
+```
+ // 微信支付
+    wxPay: '/api/order/wxPay',
+    // 订单状态
+    wxStatus: '/api/order/status',
+```
+
+2.下载安准微信开发包
+
+```
+composer require "overtrue/laravel-wechat:~3.0" -vvv
+```
+
+3.生成配置
+
+```
+php artisan vendor:publish --provider="Overtrue\LaravelWechat\ServiceProvider"
+```
+
+4.修改配置文件 config/wechat.php
+
+```
+return [
+    ...
+    /*
+     * 账号基本信息，请从微信公众平台/开放平台获取
+     */
+    'app_id'  => env('WECHAT_APPID', '应用ID'),         // AppID
+    'secret'  => env('WECHAT_SECRET', 'your-app-secret'),   
+    ……
+      * 微信支付
+     */
+     'payment' => [
+         'merchant_id'        => env('WECHAT_PAYMENT_MERCHANT_ID', '微信支付商户号'),
+         'key'                => env('WECHAT_PAYMENT_KEY', '应用密钥'),
+         ]
+          /**
+     * Guzzle 全局设置
+     *
+     * 更多请参考： http://docs.guzzlephp.org/en/latest/request-options.html
+     */
+    'guzzle' => [
+        'timeout' => 3.0, // 超时时间（秒）
+        'verify' => false, // 关掉 SSL 认证（强烈不建议！！！）
+    ],
+
+```
+
+5.下载二维码生成器
+
+```
+composer require "endroid/qrcode:~2.5" -vvv
+```
+
+easywechat参考文档：<https://www.easywechat.com/docs/3.x/overview>
+
+二维码参考文档：<https://github.com/endroid/qr-code/tree/2.x>
+
+```
+ public function wxPay( ){
+        //接收id找出订单号
+        $id = \request()->get("id");
+        //dd($id);
+        $orderModel =Order::find($id);
+        //dd($orderModel);
+        //1配置
+        $options = config("wechat");
+        $app = new Application($options);
+        $payment = $app->payment;
+        //2生成订单
+        $attributes = [
+            'trade_type'       => 'NATIVE', // JSAPI，NATIVE，APP...
+            'body'             => '饿不饿点餐平台支付',
+            'detail'           => '饿不饿点餐平台支付吖',
+            'out_trade_no'     => $orderModel->order_code,//订单号
+            'total_fee'        => $orderModel->total * 100,  // 单位：分
+            'notify_url'       => 'http://xxx.com/order-notify', // 支付结果通知网址，如果不设置则会使用配置里的默认地址
+            // 'openid'           => '当前用户的 openid', // trade_type=JSAPI，此参数必传，用户在商户appid下的唯一标识，
+            // ...
+        ];
+        $order = new \EasyWeChat\Payment\Order($attributes);
+        //统一下单
+        $result = $payment->prepare($order);
+        //dd($result);
+        if ($result->return_code == 'SUCCESS' && $result->result_code == 'SUCCESS'){
+            $codeUrl = $result->code_url;
+
+            $qrCode = new QrCode($codeUrl);
+            $qrCode->setSize(300);//大小
+            // Set advanced options
+            $qrCode
+                ->setMargin(10)//外边框
+                ->setEncoding('UTF-8')//编码
+                ->setErrorCorrectionLevel(ErrorCorrectionLevel::HIGH)//容错级别
+                ->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0])//码颜色
+                ->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255])//背景色
+                ->setLabel('微信扫码支付', 16, public_path("font/msyh.ttc"), LabelAlignment::CENTER)
+                ->setLogoPath(public_path("images/logo.png"))//LOGO
+                ->setLogoWidth(100);//LOGO大小
+
+            // Directly output the QR code
+            header('Content-Type: ' . $qrCode->getContentType());//响应类型
+            exit($qrCode->writeString());
+        }else{
+            return $result;
+        }
+
+    }
+```
+
+6.微信异步通知
+
+```
+    //微信异步通知
+    public function ok(  ){
+        //1配置
+        $options = config("wechat");
+        $app = new Application($options);
+        //2.回调
+        $response = $app->payment->handleNotify(function($notify, $successful){
+            // 使用通知里的 "微信支付订单号" 或者 "商户订单号" 去自己的数据库找到订单
+            // $order = 查询订单($notify->out_trade_no);
+            $order=Order::where("order_code",$notify->out_trade_no)->first();
+
+            if (!$order) { // 如果订单不存在
+                return 'Order not exist.'; // 告诉微信，我已经处理完了，订单没找到，别再通知我了
+            }
+
+            // 如果订单存在
+            // 检查订单是否已经更新过支付状态
+            if ($order->status==1) { // 假设订单字段“支付时间”不为空代表已经支付
+                return true; // 已经支付成功了就不再更新了
+            }
+
+            // 用户是否支付成功
+            if ($successful) {
+                // 不是已经支付状态则修改为已经支付状态
+                //$order->paid_at = time(); // 更新支付时间为当前时间
+                $order->status = 1;
+            }
+
+            $order->save(); // 保存订单
+
+            return true; // 返回处理完成
+        });
+
+        $response->send();
+    }
+```
+
+7.更改状态
+
+```
+ public function status(){
+
+        $id = \request()->get("id");
+        $order = Order::find($id);
+        return [
+          'status'=>$order->status,
+        ];
+
+    }
+```
+
+#### 上线注意
+
+页面不跳转 回调路径有问题
+
+数据库权限  
+
+端口放行
+
+# Day15
+
+### 开发任务
+
+#### 网站优化
+
+- 店铺列表和详情接口使用redis做缓存,减少数据库压力 
+-  高并发下,使用redis解决活动报名问题（已解决）
+- 自动清理超时未支付订单
+- 活动列表页和活动详情页,页面静态化
+- 全文索引
+
+#### 接口安全
+
+HTTPS+TOKEN+数字签名
+
+#### 实现步骤
+
+##### 超时未支付订单
+
+1.先取出超时 未支付的订单 遍历出每一条
+
+2.把状态修成为-1
+
+3.修改库存  拿出这个订单的商品 读取这个商品的数量 把退回的数量加到库存当中
+
+```
+ public function clear(  ){
+        /*
+         * 找出需要处理的订单 要是超时的 未支付的
+         * 创建时间小于当前时间多少分或者
+         * 创建时间<当前时间-60*60 这个是超时
+         * 状态为0
+         */
+
+       // dd($orders->toArray());
+        //可以用到自动事务保证状态和库存同时修改
+        DB::transaction(function(){
+            $orders =Order::where("status",0)->where("created_at","<",date("Y-m-d H:i:s",time()-60*60))->get();
+            //把超时未支付的订单遍历出来 并修改状态-1
+            foreach($orders as $order){
+                $order->status=-1;
+                $order->save();
+
+                /*
+                 * 库存修改
+                 * 取出当前订单的商品 在商品订单表查询
+                 * 拿出要退的商品数量
+                 * 修改menu表的库存
+                 *
+                 */
+                $goods =OrderDetail::where("order_id",$order->id)->get();
+                //dd($goods);
+                //遍历商品 取出库存
+                foreach($goods as $good){
+                    $amount =$good->amount;
+                    $menuId=$good->goods_id;
+                    //修改库存
+                    Menu::where("id",$menuId)->increment("stock",$amount);
+                }
+            }
+        });
+
+    }
+```
+
+4.在宝塔中添加计划任务 就能实现自动清除
+
+##### 店铺列表用缓存redis或者文件缓存
+
+文件缓存
+
+1.获取缓存
+
+2.判断缓存是否存在 存在则直接获取
+
+3 .缓存不存在  则在数据库获取内容  并添加到缓存当中  设置自动清理缓存的时间
+
+
+
+ ```
+  /*
+         * 缓存实现店铺列表
+         */
+        //从redis中取出来的字符串
+        $shops=Cache::get("shop_index");
+        if(!$shops){
+            //如果redis没有 那就在数据库拿取
+            //得到所有店铺，状态为1的
+            $shops = Shop::where("status",1)->get();
+            //把数据保存到redis 时间是分钟
+            Cache::set("shop_index",$shops,10);
+        }
+        //dd($shops->toArray());
+        //把距离和送达时间追加上去
+        foreach($shops as $k=>$v){
+            $shops[$k]->distance=rand(1000,5000);
+            $shops[$k]->estimate_time=ceil($shops[$k]->distance/rand(100,150));
+        }
+      return $shops;
+ ```
+
+用原生redis做
+
+1.获取缓存
+
+2.判断缓存是否存在 存在则直接获取 并转换成数组 
+
+```
+$shops=json_decode($shops,true);//记得加true
+```
+
+3 .缓存不存在  则在数据库获取内容  并添加到缓存当中 要转换成字符串  设置自动清理缓存的时间
+
+```
+
+        $shops =Redis::get("shop_index");
+        if(!$shops){
+            //如果redis没有 那就在数据库拿取
+            //得到所有店铺，状态为1的
+            $shops = Shop::where("status",1)->get();
+            Redis::setex("shop_index",60*60,json_encode($shops));
+        }
+        $shops=json_decode($shops,true);//记得加true
+        foreach($shops as $k=>$v){
+            $shops[$k]['distance']=rand(1000,5000);
+            $shops[$k]['estimate_time']=ceil($shops[$k]['distance']/rand(100,150));
+        }
+        return $shops;
+       
+```
+
+##### 全文索引
+
+1.确认php扩展是否打开
+
+```
+pdo_sqlite
+sqlite3
+mbstring
+```
+
+2.安装tntsearch
+
+```
+composer require vanry/laravel-scout-tntsearch -vvv
+```
+
+3.添加全文索引config/app.php
+
+```
+'providers' => [
+
+    // ...
+
+    /**
+     * TNTSearch 全文搜索
+     */
+    Laravel\Scout\ScoutServiceProvider::class,
+    Vanry\Scout\TNTSearchScoutServiceProvider::class,
+],
+```
+
+4.安装中文分词 require jieba-php
+
+```
+composer require fukuball/jieba-php
+```
+
+5.发布配置
+
+```
+php artisan vendor:publish --provider="Laravel\Scout\ScoutServiceProvider"
+```
+
+6.配置项中增加 tntsearch ；在/config/scout.php ；
+
+```
+'tntsearch' => [
+    'storage' => storage_path('indexes'), //必须有可写权限
+    'fuzziness' => env('TNTSEARCH_FUZZINESS', false),
+    'searchBoolean' => env('TNTSEARCH_BOOLEAN', false),
+    'asYouType' => false,
+
+    'fuzzy' => [
+        'prefix_length' => 2,
+        'max_expansions' => 50,
+        'distance' => 2,
+    ],
+
+    'tokenizer' => [
+        'driver' => env('TNTSEARCH_TOKENIZER', 'default'),
+
+        'jieba' => [
+            'dict' => 'small',
+            //'user_dict' => resource_path('dicts/mydict.txt'), //自定义词典路径
+        ],
+
+        'analysis' => [
+            'result_type' => 2,
+            'unit_word' => true,
+            'differ_max' => true,
+        ],
+
+        'scws' => [
+            'charset' => 'utf-8',
+            'dict' => '/usr/local/scws/etc/dict.utf8.xdb',
+            'rule' => '/usr/local/scws/etc/rules.utf8.ini',
+            'multi' => 1,
+            'ignore' => true,
+            'duality' => false,
+        ],
+    ],
+
+    'stopwords' => [
+        '的',
+        '了',
+        '而是',
+    ],
+],
+```
+
+7.增加配置项 /.env
+
+```
+SCOUT_DRIVER=tntsearch
+TNTSEARCH_TOKENIZER=jieba
+```
+
+8.模型中定义全文搜索；/app/Models/Shop.php
+
+```
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
+
+class Shop extends Model
+{
+    use Searchable;//一定要有命名空间
+
+    /**
+     * 索引的字段
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return $this->only('id', 'shop_name');
+    }
+}
+```
+
+9.生成索引
+
+```
+php artisan scout:import "App\Models\Shop"
+```
+
+10.应用
+
+```
+ public function index(  ){
+
+        $keyword = \request("keyword");
+        //dd($keyword);
+        if ($keyword != null) {
+            //$shops = Shop::where("status",1)->where("shop_name","like","%{$keyword}%")->get();
+            $shops = Shop::search($keyword)->get();
+            //dd($shops->toArray());
+        }else{//一定要else  不然搜索不出来
+            $shops=Cache::get("shop_index");
+            if(!$shops){
+                //如果文件中没有 那就在数据库拿取
+                //得到所有店铺，状态为1的
+                $shops = Shop::where("status",1)->get();
+                //把数据保存到redis 时间是分钟
+                Cache::set("shop_index",$shops,1);
+            }
+
+        }
+        /*
+         * 缓存实现店铺列表
+         */
+        //从文件中取出来的缓存的
+
+        //dd($shops->toArray());
+        //把距离和送达时间追加上去
+        foreach($shops as $k=>$v){
+            $shops[$k]->distance=rand(1000,5000);
+            $shops[$k]->estimate_time=ceil($shops[$k]->distance/rand(100,150));
+        }
+      return $shops;
+       
+
+   }
+```
+
+##### 接口安全
+
+###### 1.https
+
+###### 2.token
+
+1.用户提交“用户名”和“密码”，实现登录
+
+2.登录成功后 ，服务端返回一个 token，生成规则参考如下：token = md5('用户的id' + 'Unix时间戳')
+
+3.服务端将生成 token和用户id的对应关系保存到redis，并设置有效期（例如7天）
+
+4.客户端每次接口请求时，如果接口需要用户登录才能访问，则需要把 user_id 与 token 传回给服务端
+
+5.服务端验证token 和用户id的关系，更新token 的过期时间（延期，保证其有效期内连续操作不掉线）
+
+###### 3.数字签名
+
+1.对除签名外的所有请求参数按key做升序排列 （假设当前时间的时间戳是12345678）
+
+例如：有c=3,b=2,a=1 三个参，另加上时间戳后， 按key排序后为：a=1，b=2，c=3，timestamp=12345678。
+
+2.把参数名和参数值连接成字符串，得到拼装字符：a1b2c3timestamp12345678
+
+3.用密钥连接到接拼装字符串头部和尾部，然后进行32位MD5加密，最后将到得MD5加密摘要转化成大写。
+
+
+
+
+

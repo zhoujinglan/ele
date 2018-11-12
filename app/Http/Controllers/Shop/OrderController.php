@@ -86,43 +86,26 @@ class OrderController extends Controller
 
     }
   //按菜品日日销量
-    public function menuDay(){
+    public function menuDay(Request $request){
+        //默认显示当前的菜品销量
+        $date=$request->day??date("Y-m-d",time());
+        //dd($date);
+        //$shopId=$request->shop_id;
+        //登录用户
         //先找到店铺ID
         $shopId=Auth::user()->shop->id;
         //再通过店铺ID把属于这个店的所有订单id 都找出来
-        $orderIds=Order::where("shop_id",$shopId)->whereDate('created_at', '2018-11-04')->pluck("id")->toArray();
-        $datas=OrderDetail::orderBy("created_at", 'desc');
+        $orderIds=Order::where("shop_id",$shopId)->whereDate('created_at', $date)->pluck("id")->toArray();
+        //商品
+        $datas=   OrderDetail::select(DB::raw("goods_id,goods_name,sum(amount) as nums,sum(amount * goods_price) as price"))->whereIn("order_id",$orderIds)->groupBy("goods_id")->get();
+        //dd($datas->toArray());
+
+
+        //$datas=OrderDetail::orderBy("created_at", 'desc');
 //        dd($datas->toArray());
         //把事件只读出月份 搜索用
-        $months = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name" )) ->groupBy('date' )->get();
-        //dd($months);
-        $url =request()->query();
-        $start = request()->get('start');
-        $end =request()->get("end");
-        $month =request()->get('month');
-        $name =request()->get('name');
-//       dd($name);
-//        $datas=OrderDetail::orderBy("id")->where("goods_name",$name)->get();
-//        dd($datas->toArray());
+        $months = OrderDetail::select(DB::raw("DATE_FORMAT(created_at,'%Y-%m-%d') as date,COUNT(*) as nums,SUM(goods_price) as money,goods_name" )) ->groupBy('date' )->get();
 
-        if ($start !== null) {
-            $datas->whereDate("created_at", ">=", $start);
-        }
-        if ($end !== null) {
-            $datas->whereDate("created_at", "<=", $end);
-        }
-
-        if($month != null){
-            $datas ->where(DB::raw("DATE_FORMAT(created_at,'%Y-%m')"),"=",$month);
-        }
-        if($name !=null){
-            $datas->where("goods_name","like","%{$name}%");
-//            exit("1454dftg");
-        }
-
-        //dd($datas->get());->limit(30);
-       $datas= $datas->paginate(5);
-        //dd($datas);
         return view("shop.order.menu_day",compact('datas',"months","url"));
 
     }

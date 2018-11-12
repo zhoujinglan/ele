@@ -31,8 +31,6 @@ class EventController extends BaseController
             $this->validate($request, [
                 'title' => 'required',
                 'content' => 'required',
-
-
             ]);
             $data =$request->post();
             $data['start_time'] =strtotime($data['start_time']);
@@ -51,7 +49,36 @@ class EventController extends BaseController
         //视图
         return view("admin.event.add");
     }
+        /*
+         * 活动修改
+         */
+    public function edit( Request $request,$id ){
+        $event=Event::find($id);
+        $event['start_time']=date("Y-m-d",$event->start_time);
+        $event['end_time']=date("Y-m-d",$event->end_time);
+       $prize_time=date("Y-m-d H:i",$event->prize_time);
+        $event['prize_time']=str_replace(" ","T",$prize_time);
+       //   dd( $event['prize_time']);
+        if($request->isMethod("post")){
+            //验证
 
+            $data =$request->post();
+            $data['start_time'] =strtotime($data['start_time']);
+            $data['end_time'] =strtotime($data['end_time']);
+            $data['prize_time'] =strtotime($data['prize_time']);
+            //dd($data);
+            //$num=Redis::get("event_num:".$id);
+            //dd($num);
+            $event= $event->update($data);
+                //dd($event);
+            //把修改的报名人数添加到缓存中 //记得打开redis 服务
+            Redis::set("event_num:".$id,$data['num']);
+            return redirect()->route("admin.event.index")->with("success","修改成功");
+
+           }
+           //引入视图
+        return view("admin.event.edit",compact('event'));
+        }
     //开奖活动
     public function open(Request $request,$id){
         //开奖前把报名人数同步到数据库中
